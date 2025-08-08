@@ -1,11 +1,12 @@
 import * as THREE from "three";
+import { launchFireworkTrajectory } from "./firework.js";
 
-export function initHandPainter(scene, width, height) {
+// --- EXPORT PRINCIPAL ---
+export function initHandPainter(scene, width, height, renderer, camera) {
   let prevPoint = null;
   let smoothedPoint = null;
   let prevTime = performance.now();
-  const lineMaterial = new THREE.LineBasicMaterial();
-  const MAX_HISTORY = 2000; // ms
+  const MAX_HISTORY = 2000;
   const drawLines = [];
 
   function createLine(x1, y1, x2, y2, speed) {
@@ -30,8 +31,7 @@ export function initHandPainter(scene, width, height) {
     let punto = null;
 
     if (results.landmarks && results.landmarks.length > 0) {
-      const tip = results.landmarks[0][8]; // index fingertip
-      //console.log("tip", tip);
+      const tip = results.landmarks[0][8];
       punto = {
         x: tip.x * width,
         y: tip.y * height,
@@ -45,29 +45,30 @@ export function initHandPainter(scene, width, height) {
         smoothedPoint.y = 0.7 * punto.y + 0.3 * smoothedPoint.y;
       }
 
-    //   // 3. Create point geometry
-    //   const punto3d = new THREE.Vector3(smoothedPoint.x, smoothedPoint.y, 0);
-    //   const geometrypoint = new THREE.BufferGeometry().setFromPoints([punto3d]);
-
-    //   // 4. Create material for point
-    //   const materialpoint = new THREE.PointsMaterial({
-    //     color: 0xff0000, // red
-    //     size: 5, // size in pixels
-    //     size: 5, // size in pixels
-    //     sizeAttenuation: false, // disables perspective size shrinking
-    //   });
-    //   const points2 = new THREE.Points(geometrypoint, materialpoint);
-    //   scene.add(points2);
-
       if (prevPoint) {
         const dx = smoothedPoint.x - prevPoint.x;
         const dy = smoothedPoint.y - prevPoint.y;
         const dist = Math.hypot(dx, dy);
         const speed = dist / dt;
-        console.log('speed', speed);
-        //&& speed > 1000
+
         if (dist > 3 && speed > 1000) {
-          createLine(prevPoint.x, prevPoint.y, smoothedPoint.x, smoothedPoint.y, speed);
+          launchFireworkTrajectory(
+            scene,
+            prevPoint.x,
+            prevPoint.y,
+            smoothedPoint.x,
+            smoothedPoint.y,
+            renderer,
+            camera
+          );
+
+          createLine(
+            prevPoint.x,
+            prevPoint.y,
+            smoothedPoint.x,
+            smoothedPoint.y,
+            speed
+          );
         }
       }
 
@@ -75,8 +76,11 @@ export function initHandPainter(scene, width, height) {
       prevTime = now;
     }
 
-    //Clean up old lines
-    while (drawLines.length > 0 && now - drawLines[0].userData.timestamp > MAX_HISTORY) {
+    // Limpieza de líneas antiguas
+    while (
+      drawLines.length > 0 &&
+      now - drawLines[0].userData.timestamp > MAX_HISTORY
+    ) {
       const line = drawLines.shift();
       scene.remove(line);
       line.geometry.dispose();
