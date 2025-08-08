@@ -45,57 +45,34 @@ var renderer = new THREE.WebGLRenderer({ antialias: true });
 var camera;
 
 const canvasElement2 = document.getElementById("test_canvas") as HTMLCanvasElement;
-const canvasCtx2 = canvasElement2.getContext("webgl2"); //"webgpu" //"webgl2"
+const canvasCtx2 = canvasElement2.getContext("webgl2"); //"webgpu" //"webgl2" //2d
 
 const scene2 = new THREE.Scene();
 var camera2;
-const renderer2 = new THREE.WebGLRenderer({ antialias: true, context: canvasCtx2, canvas: canvasElement2 });
+const renderer2 = new THREE.WebGLRenderer({ antialias: true, alpha: true, canvas: canvasElement2 });
 
 const width = canvasElement2.width;
 const height = canvasElement2.height;
 
 // ✅ Fix: Center the orthographic camera
-camera2 = new THREE.OrthographicCamera(
-  0,
-  width,
-  0,
-  height, // Note: top > bottom
-  -10,
-  10
-);
+// camera2 = new THREE.OrthographicCamera(
+//   0,
+//   width,
+//   0,
+//   height, // Note: top > bottom
+//   -10,
+//   10
+// );
 // ✅ Fix: Center the orthographic camera
 //camera2 = new THREE.OrthographicCamera(0,width,0,height, -1, 1);
-camera2.position.z = 5;
-camera2.lookAt(new THREE.Vector3(0, 0, 0));
-
-// ✅ Define the line inside the visible area
-const points = [];
-points.push(new THREE.Vector3(0, 0, 0));
-points.push(new THREE.Vector3(50, 50, 0));
-
-const geometry = new THREE.BufferGeometry().setFromPoints(points);
-const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
-const line = new THREE.Line(geometry, material);
-scene2.add(line);
-
-// 3. Create point geometry
-const point = new THREE.Vector3(50, 50, 0);
-const geometrypoint = new THREE.BufferGeometry().setFromPoints([point]);
-
-// 4. Create material for point
-const materialpoint = new THREE.PointsMaterial({
-  color: 0xff0000, // red
-  size: 5, // size in pixels
-  sizeAttenuation: false, // disables perspective size shrinking
-});
-const points2 = new THREE.Points(geometrypoint, materialpoint);
-scene2.add(points2);
+//camera2.position.z = 5;
+//camera2.lookAt(new THREE.Vector3(0, 0, 0));
 
 // ✅ Make sure renderer is the correct size
-renderer2.setSize(width, height);
+//renderer2.setSize(width, height);
 
 // ✅ Render
-renderer2.render(scene2, camera2);
+//renderer2.render(scene2, camera2);
 
 // Check if webcam access is supported.
 const hasGetUserMedia = () => !!navigator.mediaDevices?.getUserMedia;
@@ -132,29 +109,12 @@ function enableCam(event) {
   // Activate the webcam stream.
   navigator.mediaDevices.getUserMedia(constraints).then(async (stream) => {
     video.srcObject = stream;
-    video.addEventListener("loadeddata", predictWebcam);
+    video.addEventListener("loadeddata", initAndPredict);
 
     // Now let's start detecting the stream.
     runningMode = "VIDEO";
     await handLandmarker.setOptions({ runningMode: "VIDEO" });
 
-    const width = video.videoWidth;
-    const height = video.videoHeight;
-
-    camera = new THREE.OrthographicCamera(0, width, height, 0, -1, 1);
-    renderer.setSize(width, height);
-
-    //camera2 = new THREE.PerspectiveCamera(75, canvasElement2.width / canvasElement2.height, 0.1, 1000);
-
-    //camera2 = new THREE.OrthographicCamera(0, width, 0, height, -10, 10);
-
-    //camera2.position.z = 5;
-    //camera2.lookAt(new THREE.Vector3(0, 0, 0));
-
-    // Set up a camera
-
-    // Start hand painter logic
-    draw = initHandPainter(scene2, canvasElement2.width, canvasElement2.height);
   });
 }
 
@@ -162,16 +122,57 @@ let lastVideoTime = -1;
 let results = undefined;
 console.log(video);
 
-async function predictWebcam() {
-  canvasElement.style.width = video.videoWidth;
-  canvasElement.style.height = video.videoHeight;
-  canvasElement.width = video.videoWidth;
-  canvasElement.height = video.videoHeight;
 
-  // canvasElement2.style.width = video.videoWidth;
-  // canvasElement2.style.height = video.videoHeight;
-  // canvasElement2.width = video.videoWidth;
-  // canvasElement2.height = video.videoHeight;
+
+let isInitialized = false; // Flag to track initialization
+
+async function initAndPredict() {
+  if (!isInitialized) {
+    // Initialization logic (runs only once)
+    canvasElement.style.width = video.videoWidth + "px";
+    canvasElement.style.height = video.videoHeight + "px";
+    canvasElement.width = video.videoWidth;
+    canvasElement.height = video.videoHeight;
+
+    console.log("video width", video.videoWidth, "height", video.videoHeight);
+    canvasElement2.style.width = video.videoWidth + "px";
+    canvasElement2.style.height = video.videoHeight + "px";
+    canvasElement2.width = video.videoWidth;
+    canvasElement2.height = video.videoHeight;
+
+    let width = video.videoWidth;
+    let height = video.videoHeight;
+
+    //camera = new THREE.OrthographicCamera(0, width, height, 0, -1, 1);
+    //renderer.setSize(width, height);
+
+    //camera2 = new THREE.OrthographicCamera(0, width, 0, height, -1, 1);
+    camera2 = new THREE.OrthographicCamera(0, width, 0, height, -10, 10);
+    renderer2.setSize(width, height);
+    camera2.position.z = 5;
+    camera2.lookAt(new THREE.Vector3(0, 0, 0));
+
+    // ✅ Define the line inside the visible area
+    const points = [];
+    points.push(new THREE.Vector3(0, 0, 0));
+    points.push(new THREE.Vector3(100, 100, 0));
+
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+    const line = new THREE.Line(geometry, material);
+    scene2.add(line);
+    renderer2.render(scene2, camera2);
+
+    draw = initHandPainter(scene2, canvasElement2.width, canvasElement2.height);
+
+    isInitialized = true; // Set the flag to true after initialization
+  }
+
+  predictWebcam(); // Call the per-frame logic
+}
+
+async function predictWebcam() {
+  if (!isInitialized) return; // Exit if not initialized
 
   let startTimeMs = performance.now();
   if (lastVideoTime !== video.currentTime) {
