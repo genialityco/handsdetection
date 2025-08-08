@@ -1,6 +1,4 @@
 import * as THREE from "three";
-import { Camera } from "@mediapipe/camera_utils";
-import { Hands } from "@mediapipe/hands";
 //import { FilesetResolver,HandLandmarker } from "@mediapipe/tasks-vision";
 
 import { initHandPainter } from "./hand-painter";
@@ -9,7 +7,7 @@ import { HandLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@m
 
 const demosSection = document.getElementById("demos");
 
-let handLandmarker = undefined;
+let handLandmarker: HandLandmarker | undefined = undefined;
 let runningMode = "IMAGE";
 let enableWebcamButton: HTMLButtonElement;
 let webcamRunning: Boolean = false;
@@ -30,7 +28,7 @@ const createHandLandmarker = async () => {
     runningMode: runningMode,
     numHands: 2,
   });
-  demosSection.classList.remove("invisible");
+  demosSection!.classList.remove("invisible");
 };
 createHandLandmarker();
 
@@ -39,40 +37,14 @@ const canvasElement = document.getElementById("output_canvas") as HTMLCanvasElem
 const canvasCtx = canvasElement.getContext("2d");
 
 // THREE.js setup
-const scene = new THREE.Scene();
-
-var renderer = new THREE.WebGLRenderer({ antialias: true });
-var camera;
-
 const canvasElement2 = document.getElementById("test_canvas") as HTMLCanvasElement;
-const canvasCtx2 = canvasElement2.getContext("webgl2"); //"webgpu" //"webgl2" //2d
+//const canvasCtx2 = canvasElement2.getContext("webgl2"); //"webgpu" //"webgl2" //2d
 
 const scene2 = new THREE.Scene();
-var camera2;
+var camera2: THREE.OrthographicCamera;
 const renderer2 = new THREE.WebGLRenderer({ antialias: true, alpha: true, canvas: canvasElement2 });
 
-const width = canvasElement2.width;
-const height = canvasElement2.height;
 
-// ✅ Fix: Center the orthographic camera
-// camera2 = new THREE.OrthographicCamera(
-//   0,
-//   width,
-//   0,
-//   height, // Note: top > bottom
-//   -10,
-//   10
-// );
-// ✅ Fix: Center the orthographic camera
-//camera2 = new THREE.OrthographicCamera(0,width,0,height, -1, 1);
-//camera2.position.z = 5;
-//camera2.lookAt(new THREE.Vector3(0, 0, 0));
-
-// ✅ Make sure renderer is the correct size
-//renderer2.setSize(width, height);
-
-// ✅ Render
-//renderer2.render(scene2, camera2);
 
 // Check if webcam access is supported.
 const hasGetUserMedia = () => !!navigator.mediaDevices?.getUserMedia;
@@ -80,14 +52,14 @@ const hasGetUserMedia = () => !!navigator.mediaDevices?.getUserMedia;
 // If webcam supported, add event listener to button for when user
 // wants to activate it.
 if (hasGetUserMedia()) {
-  enableWebcamButton = document.getElementById("webcamButton");
+  enableWebcamButton = document.getElementById("webcamButton") as HTMLButtonElement;
   enableWebcamButton.addEventListener("click", enableCam);
 } else {
   console.warn("getUserMedia() is not supported by your browser");
 }
 
 // Enable the live webcam view and start detection.
-function enableCam(event) {
+function enableCam(event: MouseEvent) {
   if (!handLandmarker) {
     console.log("Wait! objectDetector not loaded yet.");
     return;
@@ -113,13 +85,13 @@ function enableCam(event) {
 
     // Now let's start detecting the stream.
     runningMode = "VIDEO";
-    await handLandmarker.setOptions({ runningMode: "VIDEO" });
+    await handLandmarker!.setOptions({ runningMode: "VIDEO" });
 
   });
 }
 
 let lastVideoTime = -1;
-let results = undefined;
+let results: any = undefined;
 console.log(video);
 
 
@@ -129,16 +101,16 @@ let isInitialized = false; // Flag to track initialization
 async function initAndPredict() {
   if (!isInitialized) {
     // Initialization logic (runs only once)
-    canvasElement.style.width = video.videoWidth + "px";
-    canvasElement.style.height = video.videoHeight + "px";
-    canvasElement.width = video.videoWidth;
-    canvasElement.height = video.videoHeight;
+    canvasElement!.style.width = video.videoWidth + "px";
+    canvasElement!.style.height = video.videoHeight + "px";
+    canvasElement!.width = video.videoWidth;
+    canvasElement!.height = video.videoHeight;
 
     console.log("video width", video.videoWidth, "height", video.videoHeight);
-    canvasElement2.style.width = video.videoWidth + "px";
-    canvasElement2.style.height = video.videoHeight + "px";
-    canvasElement2.width = video.videoWidth;
-    canvasElement2.height = video.videoHeight;
+    canvasElement2!.style.width = video.videoWidth + "px";
+    canvasElement2!.style.height = video.videoHeight + "px";
+    canvasElement2!.width = video.videoWidth;
+    canvasElement2!.height = video.videoHeight;
 
     let width = video.videoWidth;
     let height = video.videoHeight;
@@ -163,7 +135,7 @@ async function initAndPredict() {
     scene2.add(line);
     renderer2.render(scene2, camera2);
 
-    draw = initHandPainter(scene2, canvasElement2.width, canvasElement2.height);
+    draw = initHandPainter(scene2, canvasElement2!.width, canvasElement2!.height);
 
     isInitialized = true; // Set the flag to true after initialization
   }
@@ -177,24 +149,24 @@ async function predictWebcam() {
   let startTimeMs = performance.now();
   if (lastVideoTime !== video.currentTime) {
     lastVideoTime = video.currentTime;
-    results = handLandmarker.detectForVideo(video, startTimeMs);
+    results = handLandmarker!.detectForVideo(video, startTimeMs);
   }
-  canvasCtx.save();
-  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+  canvasCtx!.save();
+  canvasCtx!.clearRect(0, 0, canvasElement!.width, canvasElement!.height);
 
   if (results.landmarks) {
     for (const landmarks of results.landmarks) {
-      drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+      drawConnectors(canvasCtx!, landmarks,HAND_CONNECTIONS , {
         color: "#00FF00",
         lineWidth: 5,
       });
-      drawLandmarks(canvasCtx, landmarks, { color: "#FF0000", lineWidth: 2 });
+      drawLandmarks(canvasCtx!, landmarks, { color: "#FF0000", lineWidth: 2 });
     }
 
     // Draw the THREE.js scene
   }
   draw(results);
-  canvasCtx.restore();
+  canvasCtx!.restore();
 
   // Call this function again to keep predicting when the browser is ready.
   if (webcamRunning === true) {
