@@ -226,19 +226,7 @@ export function launchFireworkTrajectory(
             volume: 0.22,
             playbackRate: 1 + Math.random() * 0.15,
           }),
-      },
-      options: {
-        yDown: true, // <- importante en tu ortográfica
-        straightPhaseSec: 0.12, // recto un instante
-        curveInSec: 0.18, // transición suave a caída
-        lineWidth: 1.8,
-        spokes: 140,
-        segments: 8,
-        gravity: 210,
-        drag: 0.9,
-        lifeSec: 1.6,
-        minBrightness: 0.03,
-      },
+      }
     });
   }
 
