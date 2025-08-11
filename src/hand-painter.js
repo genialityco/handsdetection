@@ -25,7 +25,12 @@ export function initHandPainter(scene, width, height, renderer, camera) {
     drawLines.push(line);
   }
 
-  return (results) => {
+  const resize = (newWidth, newHeight) => {
+    width = newWidth;
+    height = newHeight;
+  };
+
+  const update = (results) => {
     const now = performance.now();
     const dt = (now - prevTime) / 1000;
     let punto = null;
@@ -87,4 +92,7 @@ export function initHandPainter(scene, width, height, renderer, camera) {
       line.material.dispose();
     }
   };
+
+  update.resize = resize;
+  return update;
 }

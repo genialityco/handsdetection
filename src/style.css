@@ -11,14 +11,54 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. */
-
 @use "@material";
+
+html {
+  height: 100%;
+}
+
 body {
-  font-family: roboto;
+  font-family: Roboto, Tahoma, sans-serif;;
   margin: 2em;
   color: #3d3d3d;
   --mdc-theme-primary: #007f8b;
   --mdc-theme-on-primary: #f1f3f4;
+  position: relative;
+}
+
+body.fullcoveringbackground {
+  /******* Background image ************/
+  /** Background image **/
+  /* The image used */
+  background-image: url("./assets/FONDO_ESTADIO.jpg");
+  /* Set a specific background color to display behind the image if it fails to load or is transparent */
+  background-color: #cccccc;
+  /* Make the background image cover the entire container */
+  background-size: cover;
+  /* Full height */
+  height: 100vh;
+  /* Center the image horizontally */
+  background-position: center center;
+  /* Do not repeat the image */
+  background-repeat: no-repeat;
+}
+
+.info_images {
+  max-width: 30%;
+  display: block; /* Make it a block-level element */
+  margin: 0 auto; /* Set left and right margins to auto */
+}
+
+#demos {
+  position: absolute;
+  top: 10%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+  width: 90%;
+  left: 50%; /* Add this line */
+  transform: translateX(-50%); /* Add this line */
 }
 
 h1 {
@@ -110,4 +150,11 @@ footer {
 
 .detectOnClick img {
   width: 100%;
+}
+
+#webcamButton {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 500;
 }

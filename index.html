@@ -1,43 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hand Painter with Three.js</title>
+    <!-- <link rel="stylesheet" href="/src/style.css" /> -->
 
-<head>
-  <meta charset="UTF-8" />
-  <title>Hand Painter with Three.js</title>
-  <link rel="stylesheet" href="/src/style.css" />
+    <style></style>
 
+    <link
+      href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  </head>
 
-  <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <body class="fullcoveringbackground">
+    <script type="module" src="/src/main.js"></script>
 
-</head>
-
-<body>
-  <script type="module" src="/src/main.js"></script>
-
-
-  <section id="demos" class="invisible">
-    <h2>Demo: Webcam continuous hands landmarks detection</h2>
+    <section id="demos" class="invisible">
+      <img id="lenovo_logo" class="info_images" src="/src/assets/LOGOS_LENOVO_FIFA.png" alt="Lenovo + FIFA" />
+      <img
+        id="texto_vive_el_inicio"
+        class="info_images"
+        src="/src/assets/texto_vive_el_inicio.svg"
+        alt="Lenovo + FIFA"
+      />
+      <img id="personas" class="info_images" src="/src/assets/personas.svg" alt="Lenovo + FIFA" />
+      <img id="texto_instrucciones" class="info_images" src="/src/assets/texto_instrucciones.svg" alt="Lenovo + FIFA" />
+      <!-- <h2>Demo: Webcam continuous hands landmarks detection</h2>
     <p>Hold your hand in front of your webcam to get real-time hand landmarker detection.</br>Click <b>enable webcam</b>
-      below and grant access to the webcam if prompted.</p>
+      below and grant access to the webcam if prompted.</p> -->
 
-    <div id="liveView" class="videoView">
-      <button id="webcamButton" class="mdc-button mdc-button--raised">
-        <span class="mdc-button__ripple"></span>
-        <span class="mdc-button__label">ENABLE WEBCAM</span>
-      </button>
-      <div style="position: relative;">
-        <video id="webcam" style="position: absolute" autoplay playsinline></video>
-        <canvas class="output_canvas" id="output_canvas"
-          style="position: absolute; left: 0px; top: 0px;border: 2px solid blue "></canvas>
-        <canvas class="output_canvas" id="test_canvas"
-          style="position: absolute; left: 0px; top: 0px;border: 2px solid red"></canvas>
-      </div>
+      <div id="liveView" class="videoView"></div>
+    </section>
+    <div style="position: relative">
+      <video id="webcam" style="position: absolute; display: none" autoplay playsinline></video>
+      <canvas
+        class="output_canvas"
+        id="output_canvas"
+        style="position: fixed; left: 0px; top: 0px; border: 2px solid blue"
+      ></canvas>
+      <canvas
+        class="output_canvas"
+        id="test_canvas"
+        style="position: fixed; left: 0px; top: 0px; border: 2px solid red"
+      ></canvas>
     </div>
 
-  </section>
-</body>
-
+    <button id="webcamButton" class="mdc-button mdc-button--raised">
+      <span class="mdc-button__ripple"></span>
+      <span class="mdc-button__label">ENABLE WEBCAM</span>
+    </button>
+    
+    <div id="loader-container">
+      <div class="loader">
+        <div class="soccer-ball"></div>
+        <div class="ai-brain">
+          <span>AI</span>
+        </div>
+        <div class="loading-text">Loading AI Skills...</div>
+      </div>
+    </div>
+  </body>
 </html>
