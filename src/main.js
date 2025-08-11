@@ -238,24 +238,30 @@ async function predictWebcam() {
   };
   if (results.landmarks) {
     for (const landmarks of results.landmarks) {
-      drawCustomConnectors(scene2, landmarks, HAND_CONNECTIONS, {
-        width: canvasElement2.width,
-        height: canvasElement2.height,
-        boneRadius: 7,
-        boneSegments: 6,
-        boneColor: 0x888888, // gray
-        opacity: 0.85,
-        textureUrl: "assets/glove_texture.png", // optional, use your own texture path
+      // drawCustomConnectors(scene2, landmarks, HAND_CONNECTIONS, {
+      //   width: canvasElement2.width,
+      //   height: canvasElement2.height,
+      //   boneRadius: 7,
+      //   boneSegments: 6,
+      //   boneColor: 0x888888, // gray
+      //   opacity: 0.85,
+      //   textureUrl: "assets/glove_texture.png", // optional, use your own texture path
+      // });
+      // drawCustomLandmarks(scene2, landmarks, {
+      //   width: canvasElement2.width,
+      //   height: canvasElement2.height,
+      //   radius: 16,
+      //   palmColor: 0xcccccc, // light gray
+      //   fingerColor: 0xaaaaaa, // darker gray
+      //   opacity: 0.95,
+      //   textureUrl: "assets/glove_texture.png", // optional
+      // });
+
+    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+        color: "#00FF00",
+        lineWidth: 5,
       });
-      drawCustomLandmarks(scene2, landmarks, {
-        width: canvasElement2.width,
-        height: canvasElement2.height,
-        radius: 16,
-        palmColor: 0xcccccc, // light gray
-        fingerColor: 0xaaaaaa, // darker gray
-        opacity: 0.95,
-        textureUrl: "assets/glove_texture.png", // optional
-      });
+      drawLandmarks(canvasCtx, landmarks, { color: "#FF0000", lineWidth: 2 });
     }
   }
 
