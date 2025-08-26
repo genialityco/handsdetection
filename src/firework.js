@@ -4,9 +4,6 @@ import { makeGlowMat } from "./materials.js";
 import { explodeAtAtosStyle } from "./explosions.js";
 
 // Utils
-const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-const easeInCubic = (t) => t * t * t;
-const lerp = (a, b, t) => a + (b - a) * t;
 const randRange = (a, b) => a + Math.random() * (b - a);
 
 // Anti-doble whoosh global
@@ -61,83 +58,28 @@ export function launchFireworkTrajectory(
   scene.add(trail);
   let trailHead = 0;
 
-  // --------- TRAYECTORIA ----------
-  const dx = x1 - x0,
-    dy = y1 - y0;
-  const dist = Math.hypot(dx, dy);
-  const baseDur = Math.max(0.55, Math.min(1.2, dist / 520));
-  const wind = randRange(-60, 60);
-  let t = 0,
-    lastTime = performance.now();
+  // --------- PHYSICS & SIMULATION ----------
+  const life = 1.2 + Math.random() * 0.8;
+  const gravity = new THREE.Vector3(0, -180, 0);
+  const wind = new THREE.Vector3(randRange(-80, 80), 0, 0);
 
-  // Limpieza
-  let cleanup = [];
-  const disposeAll = () => {
-    cleanup.forEach((fn) => {
-      try {
-        fn();
-      } catch {}
-    });
-    cleanup = [];
+  const startPos = new THREE.Vector3(x0, y0, 0);
+  const endPos = new THREE.Vector3(x1, y1, 0);
+  
+  // Calculate initial velocity to approximate the target
+  const initialVelocity = endPos.clone().sub(startPos).divideScalar(life);
+  initialVelocity.sub(gravity.clone().multiplyScalar(life / 2));
+  initialVelocity.sub(wind.clone().multiplyScalar(life / 2));
+
+
+  const shell = {
+    position: startPos.clone(),
+    velocity: initialVelocity,
+    life: life,
+    startTime: performance.now() / 1000,
   };
 
-  function makeSpokeTrails(SPOKES = 60, SEGMENTS = 10) {
-    // Guardamos posiciones de cada spoke (cola) y un buffer dibujable con pares de puntos (LineSegments)
-    const tail = new Float32Array(SPOKES * SEGMENTS * 3); // [spoke][seg][xyz]
-    const pairCount = SPOKES * (SEGMENTS - 1); // pares entre (0-1,1-2,...)
-    const drawPos = new Float32Array(pairCount * 2 * 3); // 2 puntos por par
-
-    // Construimos un mapeo para copiar rápido de tail -> drawPos (índices precomputados)
-    const map = [];
-    let w = 0;
-    for (let s = 0; s < SPOKES; s++) {
-      for (let k = 0; k < SEGMENTS - 1; k++) {
-        const a = (s * SEGMENTS + k) * 3;
-        const b = (s * SEGMENTS + k + 1) * 3;
-        const outA = (w * 2 + 0) * 3;
-        const outB = (w * 2 + 1) * 3;
-        map.push([a, b, outA, outB]);
-        w++;
-      }
-    }
-
-    function pushHead(spokeIndex, x, y, z = 0) {
-      // shift cola hacia atrás [SEG-1 <- SEG-2 <- ... <- 0]
-      const base = spokeIndex * SEGMENTS * 3;
-      for (let k = SEGMENTS - 1; k > 0; k--) {
-        tail[base + k * 3 + 0] = tail[base + (k - 1) * 3 + 0];
-        tail[base + k * 3 + 1] = tail[base + (k - 1) * 3 + 1];
-        tail[base + k * 3 + 2] = tail[base + (k - 1) * 3 + 2];
-      }
-      // nuevo head
-      tail[base + 0] = x;
-      tail[base + 1] = y;
-      tail[base + 2] = z;
-    }
-
-    function bakeDrawPositions() {
-      // copia tail -> drawPos según pares precomputados
-      for (let i = 0; i < map.length; i++) {
-        const [a, b, outA, outB] = map[i];
-        drawPos[outA + 0] = tail[a + 0];
-        drawPos[outA + 1] = tail[a + 1];
-        drawPos[outA + 2] = tail[a + 2];
-        drawPos[outB + 0] = tail[b + 0];
-        drawPos[outB + 1] = tail[b + 1];
-        drawPos[outB + 2] = tail[b + 2];
-      }
-    }
-
-    return {
-      tail,
-      drawPos,
-      pushHead,
-      bakeDrawPositions,
-      SPOKES,
-      SEGMENTS,
-      pairCount,
-    };
-  }
+  let lastTime = performance.now();
 
   function pushTrail(x, y) {
     const i = trailHead % TRAIL_MAX;
@@ -162,31 +104,8 @@ export function launchFireworkTrajectory(
     const dt = Math.min(0.033, (now - lastTime) / 1000);
     lastTime = now;
 
-    const accelPhase = Math.min(0.35, baseDur * 0.4);
-    const tt = Math.min(t / baseDur, 1);
-    const s =
-      tt < accelPhase / baseDur
-        ? easeInCubic(tt * (baseDur / accelPhase))
-        : easeOutCubic(tt);
-
-    const cx = x0 + dx * s + wind * s * (1.0 - s);
-    const cy = y0 + dy * s + 80 * Math.sin(s * Math.PI) * 0.6;
-    rocketGeom.attributes.position.array[0] = cx;
-    rocketGeom.attributes.position.array[1] = cy;
-    rocketGeom.attributes.position.needsUpdate = true;
-
-    rocketGeom.setAttribute(
-      "size",
-      new THREE.Float32BufferAttribute([12 + Math.sin(now * 0.02) * 4], 1)
-    );
-
-    pushTrail(cx, cy);
-    renderer.render(scene, camera);
-
-    t += dt;
-    if (t < baseDur) {
-      requestAnimationFrame(animateRocket);
-    } else {
+    const age = (now / 1000 - shell.startTime);
+    if (age >= shell.life) {
       // Fade whoosh
       if (whooshSound && whooshSound.isPlaying) {
         try {
@@ -204,8 +123,35 @@ export function launchFireworkTrajectory(
       scene.remove(rocket);
       rocketGeom.dispose();
       rocket.material.dispose?.();
-      explodeAt(cx, cy);
+      scene.remove(trail);
+      trailGeom.dispose();
+      trail.material.dispose?.();
+      explodeAt(shell.position.x, shell.position.y);
+      return;
     }
+
+    // Update physics
+    shell.velocity.add(gravity.clone().multiplyScalar(dt));
+    shell.velocity.add(wind.clone().multiplyScalar(dt));
+    shell.position.add(shell.velocity.clone().multiplyScalar(dt));
+
+    // Update rocket mesh
+    rocketGeom.attributes.position.array[0] = shell.position.x;
+    rocketGeom.attributes.position.array[1] = shell.position.y;
+    rocketGeom.attributes.position.needsUpdate = true;
+
+    const lifeRatio = 1.0 - (age / shell.life);
+    rocketGeom.attributes.alpha.array[0] = lifeRatio;
+    rocketGeom.attributes.alpha.needsUpdate = true;
+
+    rocketGeom.setAttribute(
+      "size",
+      new THREE.Float32BufferAttribute([10 + Math.sin(now * 0.05) * 6], 1)
+    );
+
+    pushTrail(shell.position.x, shell.position.y);
+    
+    requestAnimationFrame(animateRocket);
   }
 
   function explodeAt(cx, cy) {
