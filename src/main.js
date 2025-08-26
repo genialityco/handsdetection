@@ -6,6 +6,37 @@ import boomUrl from "./assets/boom.mp3";
 import crackleUrl from "./assets/crackle.mp3";
 import { createStadiumFlashes } from "./stadium-flashes.js";
 
+//new fireworks
+import Renderer from "./utils/renderer.js";
+import startApp from "./utils/app.js";
+let renderer3 = new Renderer();
+let {scene, camera, renderer, controls, gltfLoader, flow, raycasting, ground, buttons, vec3 } = renderer3;
+window.app = await startApp({
+  renderer3,
+});
+let { dd } = renderer3;
+renderer3.start();
+import Audio from "./utils/audio.js";
+let audio = new Audio(camera);
+import { FireworkSystem } from "./utils/FireworkSystem.js";
+const fireworkSystem = new FireworkSystem({
+  THREE,
+  scene,
+  camera,
+  flow,
+  dd,
+  audio,
+  vec3,
+  autoLauncher: true,
+  renderer,
+});
+
+// Example usage: fire a firework at a position
+//fireworkSystem.fire(vec3(0, 0, 0));
+
+// Optionally, expose fireworkSystem for other modules
+// window.fireworkSystem = fireworkSystem;
+
 //Styles and CSS
 import "./style.css";
 import "./components/soccerloader/soccerloader.css";
@@ -136,8 +167,8 @@ async function initAndPredict() {
     //camera2.position.z = 10;
     camera2.lookAt(new THREE.Vector3(0, 0, 0));
 
-camera2.position.z = 10; // or any value > 0
-//camera2.lookAt(new THREE.Vector3(canvasElement2.width / 2, canvasElement2.height / 2, 0));
+    camera2.position.z = 10; // or any value > 0
+    //camera2.lookAt(new THREE.Vector3(canvasElement2.width / 2, canvasElement2.height / 2, 0));
 
     //camera2.lookAt(new THREE.Vector3(width/2, height/2, 0));
     // once during init (scene setup)
@@ -257,7 +288,7 @@ async function predictWebcam() {
       //   textureUrl: "assets/glove_texture.png", // optional
       // });
 
-    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+      drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
         color: "#00FF00",
         lineWidth: 5,
       });

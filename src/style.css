@@ -30,7 +30,7 @@ body.fullcoveringbackground {
   /******* Background image ************/
   /** Background image **/
   /* The image used */
-  background-image: url("./assets/FONDO_ESTADIO.jpg");
+  /* background-image: url("./assets/FONDO_ESTADIO.jpg"); */
   /* Set a specific background color to display behind the image if it fails to load or is transparent */
   background-color: #cccccc;
   /* Make the background image cover the entire container */
@@ -41,6 +41,20 @@ body.fullcoveringbackground {
   background-position: center center;
   /* Do not repeat the image */
   background-repeat: no-repeat;
+}
+
+#videofondo {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -100;
+  transform: translateX(-50%) translateY(-50%);
+  object-fit: cover;
+  background-size: cover;
 }
 
 .info_images {
