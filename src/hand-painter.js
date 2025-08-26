@@ -57,6 +57,30 @@ export function initHandPainter(scene, width, height, renderer, camera) {
         const speed = dist / dt;
 
         if (dist > 3 && speed > 1000) {
+
+const startCoords = { x: 0, y: 0 };
+const endCoords = { x: 0, y: 0 };
+const canvastarget = document.getElementById("test_canvas");
+console.log('emitiendo',canvastarget)
+// 2. Create and dispatch the 'mousedown' event
+const mouseDownEvent = new MouseEvent('mousedown', {
+  bubbles: true,
+  cancelable: true,
+  clientX: startCoords.x,
+  clientY: startCoords.y
+});
+canvastarget.dispatchEvent(mouseDownEvent);
+
+// 3. Create and dispatch the 'mouseup' event
+const mouseUpEvent = new MouseEvent('mouseup', {
+  bubbles: true,
+  cancelable: true,
+  clientX: endCoords.x,
+  clientY: endCoords.y
+});
+canvastarget.dispatchEvent(mouseUpEvent);
+
+          
           launchFireworkTrajectory(
             scene,
             prevPoint.x,

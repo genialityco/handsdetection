@@ -226,7 +226,7 @@ export class FireworkSystem {
       n.velocity.z *= 0.5;
       //this.position = this.fireworkSystem.vec3(0.2, 0.2, 0);
       n.velocity.y = Math.abs(n.velocity.y);
-      n.velocity.y *= 0.1;
+      n.velocity.y *= 0.2;
       this.nodes.push(n);
       return n;
     }
@@ -333,24 +333,24 @@ export class FireworkSystem {
    * Generator for shell (main firework) particles.
    */
   shell = function* (shell) {
-    shell.velocity.y += 0.7;
+    shell.velocity.y += 1;
     shell.velocity.x *= 1.5;
     shell.velocity.z *= 1.5;
-    shell.power = 1 * Math.random() * 1 + 1;
+    shell.power = 2 * Math.random() * 1 + 1;
     shell.life = 1.05 * shell.power;
     yield shell.life * 1000;
     shell.dead = true;
-    // Play explosion sound
-    // this.audio.play(
-    //   Math.random() > 0.1 ? "boom0" : "pop0",
-    //   shell.position,
-    //   Math.random() * 0.2 + 0.5,
-    //   Math.random() * 2700 - 2000
-    // );
+    //Play explosion sound
+    this.audio.play(
+      Math.random() > 0.1 ? "boom0" : "pop0",
+      shell.position,
+      Math.random() * 0.2 + 0.5,
+      Math.random() * 2700 - 2000
+    );
     // Special effect: thraxBomb
-    // if (this.thraxBomb && !(Math.floor(Math.random() * 20))) {
-    //     this.sys.emit(this.thraxBomb, shell);
-    // }
+    if (this.thraxBomb && !(Math.floor(Math.random() * 20))) {
+        this.sys.emit(this.thraxBomb, shell);
+    }
     //Emit sparks
     for (let i = 0; i < 50; i++) {
       this.sys.emit(this.spark, shell);
