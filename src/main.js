@@ -284,6 +284,7 @@ async function predictWebcam() {
     color: 0xffcc99,
   };
   if (results.landmarks) {
+
     for (const landmarks of results.landmarks) {
       // drawCustomConnectors(scene2, landmarks, HAND_CONNECTIONS, {
       //   width: canvasElement2.width,
@@ -305,13 +306,14 @@ async function predictWebcam() {
       // });
 
       drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
-        color: "#00FF00",
+        color: "#AAAAAA",
         lineWidth: 5,
       });
-      drawLandmarks(canvasCtx, landmarks, { color: "#FF0000", lineWidth: 2 });
+      drawLandmarks(canvasCtx, landmarks, { color: "#DDDDDD", lineWidth: 2 });
     }
   }
 
+  //Este Draw viene de handpainter
   draw(results);
   canvasCtx.restore();
 

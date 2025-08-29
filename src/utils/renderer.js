@@ -61,6 +61,7 @@ export default function Renderer() {
 
   // Create a fullscreen container for the renderer's canvas.
   const container = document.createElement("div");
+  container.id = "fireworks_container";
   Object.assign(container.style, { position: "fixed", top: "0", left: "0", right: "0", bottom: "0" });
   document.body.appendChild(container);
   container.appendChild(renderer.domElement);

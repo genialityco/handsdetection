@@ -28,7 +28,7 @@ export function launchFireworkTrajectory(
     "position",
     new THREE.Float32BufferAttribute([x0, y0, 0], 3)
   );
-  rocketGeom.setAttribute("size", new THREE.Float32BufferAttribute([14], 1));
+  rocketGeom.setAttribute("size", new THREE.Float32BufferAttribute([50], 1));
   rocketGeom.setAttribute("alpha", new THREE.Float32BufferAttribute([1], 1));
   const rocket = new THREE.Points(rocketGeom, glowMat.clone());
   scene.add(rocket);
@@ -141,12 +141,13 @@ export function launchFireworkTrajectory(
     rocketGeom.attributes.position.needsUpdate = true;
 
     const lifeRatio = 1.0 - (age / shell.life);
-    rocketGeom.attributes.alpha.array[0] = lifeRatio;
+    const alpha = Math.max(0.2, lifeRatio * lifeRatio); // quadratic fade, min 0.2
+    rocketGeom.attributes.alpha.array[0] = alpha;
     rocketGeom.attributes.alpha.needsUpdate = true;
 
     rocketGeom.setAttribute(
       "size",
-      new THREE.Float32BufferAttribute([10 + Math.sin(now * 0.05) * 6], 1)
+      new THREE.Float32BufferAttribute([50 + Math.sin(now * 0.05) * 24], 1)
     );
 
     pushTrail(shell.position.x, shell.position.y);
@@ -155,6 +156,7 @@ export function launchFireworkTrajectory(
   }
 
   function explodeAt(cx, cy) {
+    return;
     explodeAtAtosStyle({
       scene,
       renderer,
