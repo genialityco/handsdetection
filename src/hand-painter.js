@@ -49,6 +49,9 @@ hand movement distante calculations? to then calculate the firework power?
    * @param {*} results
    */
 
+  const canvascontainer = document.getElementById("fireworks_container");
+  const canvastarget = canvascontainer.querySelector("canvas");
+
   const update = (results) => {
     const now = performance.now();
     const dt = (now - prevTime) / 1000;
@@ -87,6 +90,23 @@ hand movement distante calculations? to then calculate the firework power?
         if (shouldEndStroke && stroke.length > 1) {
           const totalUpward = stroke[0].y - stroke[stroke.length - 1].y;
           if (totalUpward > MIN_UPWARD_DIST) {
+            const lineDrawnEvent = new CustomEvent("lineDrawn", {
+              bubbles: true,
+              cancelable: true,
+              detail: {
+              initX: stroke[0].x,
+              initY: stroke[0].y,
+              endX: stroke[stroke.length - 1].x,
+              endY: stroke[stroke.length - 1].y,
+              power: Math.min(1, speed / 3000)
+              }
+            });
+           
+            console.log("HAND EMITER EVENTS lineDrawn", canvastarget , lineDrawnEvent);
+            // 2. Create and dispatch the 'mousedown' event
+            // const mouseDownEvent = new MouseEvent('mousedown', {
+            canvastarget.dispatchEvent(lineDrawnEvent);
+
             createLine(stroke[0].x, stroke[0].y, stroke[stroke.length - 1].x, stroke[stroke.length - 1].y, speed);
             launchFireworkTrajectory(
               scene,

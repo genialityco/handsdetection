@@ -268,6 +268,7 @@ async function predictWebcam() {
     color: 0xffcc99,
   };
   if (results.landmarks) {
+
     for (const landmarks of results.landmarks) {
       // drawCustomConnectors(scene2, landmarks, HAND_CONNECTIONS, {
       //   width: canvasElement2.width,

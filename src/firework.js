@@ -156,6 +156,7 @@ export function launchFireworkTrajectory(
   }
 
   function explodeAt(cx, cy) {
+    return;
     explodeAtAtosStyle({
       scene,
       renderer,

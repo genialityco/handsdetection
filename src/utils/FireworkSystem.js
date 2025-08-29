@@ -49,7 +49,43 @@ export class FireworkSystem {
     let dragEnd = null;
     const maxPowerDistance = 120; // Adjust this value to your scene scale
 
+    canvas.addEventListener("lineDrawn", (event) => {
+      console.log("lineDrawnEvent", event, event.detail);
+      const { initX, initY, endX, endY } = event.detail;
+
+      // Convert screen coordinates to normalized device coordinates (NDC)
+      const rect = canvas.getBoundingClientRect();
+      const ndcInit = new THREE.Vector2(
+        -(((initX - rect.left) / rect.width) * 2 - 1), // <-- add minus sign here
+        -((initY - rect.top) / rect.height) * 2 + 1
+      );
+      const ndcEnd = new THREE.Vector2(
+        -(((endX - rect.left) / rect.width) * 2 - 1),
+        -((endY - rect.top) / rect.height) * 2 + 1
+      );
+
+      // Raycast from camera to z=0 plane
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(ndcInit, camera);
+      const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); // z=0 plane
+      const initVec3 = new THREE.Vector3();
+      raycaster.ray.intersectPlane(plane, initVec3);
+
+      raycaster.setFromCamera(ndcEnd, camera);
+      const endVec3 = new THREE.Vector3();
+      raycaster.ray.intersectPlane(plane, endVec3);
+
+      // Calculate direction vector
+      const direction = endVec3.clone().sub(initVec3).normalize();
+
+      console.log("World positions:", initVec3, endVec3, "Direction:", direction);
+
+      // Now you can use initVec3 as the position and direction for your firework
+      // Example:
+      this.fire(this.fire, initVec3, direction);
+    });
     canvas.addEventListener("mousedown", (event) => {
+      return;
       const rect = canvas.getBoundingClientRect();
       const mouse = new THREE.Vector2(
         ((event.clientX - rect.left) / rect.width) * 2 - 1,
@@ -63,6 +99,7 @@ export class FireworkSystem {
     });
 
     canvas.addEventListener("mouseup", (event) => {
+      return;
       const rect = canvas.getBoundingClientRect();
       const mouse = new THREE.Vector2(
         ((event.clientX - rect.left) / rect.width) * 2 - 1,
@@ -348,8 +385,8 @@ export class FireworkSystem {
       Math.random() * 2700 - 2000
     );
     // Special effect: thraxBomb
-    if (this.thraxBomb && !(Math.floor(Math.random() * 20))) {
-        this.sys.emit(this.thraxBomb, shell);
+    if (this.thraxBomb && !Math.floor(Math.random() * 20)) {
+      this.sys.emit(this.thraxBomb, shell);
     }
     //Emit sparks
     for (let i = 0; i < 50; i++) {
@@ -385,14 +422,14 @@ export class FireworkSystem {
   //   }
 
   fire = function (fire, position = this.vec3(0, 0, 0), direction) {
-    console.log("Firing firework at",  direction);
+    console.log("Firing firework at", direction);
     //yield Math.floor(Math.random() * 20) + 10;
-    let shell = this.sys.emit(this.shell, fire,  direction );
+    let shell = this.sys.emit(this.shell, fire, direction);
     direction.x += Math.random() * 0.2 - 0.1;
-    
-    let shell2 = this.sys.emit(this.shell, fire,  direction );
+
+    let shell2 = this.sys.emit(this.shell, fire, direction);
     direction.x += Math.random() * 0.2 - 0.1;
-    let shell3 = this.sys.emit(this.shell, fire,  direction );
+    let shell3 = this.sys.emit(this.shell, fire, direction);
     shell.position.copy(position);
     shell2.position.copy(position);
     shell3.position.copy(position);
