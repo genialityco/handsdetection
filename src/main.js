@@ -10,7 +10,7 @@ import { createStadiumFlashes } from "./stadium-flashes.js";
 import Renderer from "./utils/renderer.js";
 import startApp from "./utils/app.js";
 let renderer3 = new Renderer();
-let {scene, camera, renderer, controls, gltfLoader, flow, raycasting, ground, buttons, vec3 } = renderer3;
+let { scene, camera, renderer, controls, gltfLoader, flow, raycasting, ground, buttons, vec3 } = renderer3;
 window.app = await startApp({
   renderer3,
 });
@@ -30,12 +30,6 @@ const fireworkSystem = new FireworkSystem({
   autoLauncher: true,
   renderer,
 });
-
-// Example usage: fire a firework at a position
-//fireworkSystem.fire(vec3(0, 0, 0));
-
-// Optionally, expose fireworkSystem for other modules
-// window.fireworkSystem = fireworkSystem;
 
 //Styles and CSS
 import "./style.css";
@@ -69,13 +63,17 @@ const createHandLandmarker = async () => {
       },
       runningMode: runningMode,
       numHands: 2,
+      minHandDetectionConfidence: 0.5, // Ajustado para baja luz
+      minHandPresenceConfidence: 0.5,
+      minTrackingConfidence: 0.5,
     });
 
     //** HANDS detection model LOADED, EXPERIENCE CAN START  ****/
     // Hide loader after model is loaded
     loaderContainer.style.display = "none";
     demosSection.classList.remove("invisible");
-    enableCam();
+    enableWebcamButton = document.getElementById("webcamButton");
+    enableWebcamButton.addEventListener("click", enableCam);
   } catch (error) {
     console.error("Failed to load model:", error);
     loaderContainer.querySelector(".loading-text").textContent = "Failed to load model. Please refresh the page.";
@@ -101,16 +99,8 @@ const renderer2 = new THREE.WebGLRenderer({
 // Check if webcam access is supported.
 const hasGetUserMedia = () => !!navigator.mediaDevices?.getUserMedia;
 
-// If webcam supported, add event listener to button for when user wants to activate it.
-if (hasGetUserMedia()) {
-  enableWebcamButton = document.getElementById("webcamButton");
-  enableWebcamButton.addEventListener("click", enableCam);
-} else {
-  console.warn("getUserMedia() is not supported by your browser");
-}
-
 // Enable the live webcam view and start detection.
-function enableCam(event) {
+async function enableCam(event) {
   userInteracted = true; // <-- marca gesto de usuario para autoplay de audio
 
   if (!handLandmarker) {
@@ -121,20 +111,49 @@ function enableCam(event) {
   if (webcamRunning === true) {
     webcamRunning = false;
     enableWebcamButton.innerText = "ENABLE PREDICTIONS";
+    // Detener el stream de video si se desactiva
+    if (video.srcObject) {
+      video.srcObject.getTracks().forEach(track => track.stop());
+      video.srcObject = null;
+    }
   } else {
     webcamRunning = true;
     enableWebcamButton.innerText = "DISABLE PREDICTIONS";
+
+    // Configurar la cámara RealSense D435 RGB
+    try {
+      // Solicitar permiso inicial para enumerar dispositivos
+      await navigator.mediaDevices.getUserMedia({ video: true });
+
+      // Enumerar dispositivos para encontrar la RealSense RGB
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      const realsenseDevice = videoDevices.find(device => device.label.includes('RealSense') && device.label.includes('RGB'));
+
+      // Definir constraints para la cámara
+      const constraints = {
+        video: {
+          deviceId: realsenseDevice ? { exact: realsenseDevice.deviceId } : undefined,
+          width: { ideal: 1280 }, // Resolución óptima para D435 RGB
+          height: { ideal: 720 },
+          frameRate: { ideal: 30 },
+        },
+      };
+
+      // Obtener el stream de video
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      video.srcObject = stream;
+      video.addEventListener("loadeddata", initAndPredict);
+
+      runningMode = "VIDEO";
+      await handLandmarker.setOptions({ runningMode: "VIDEO" });
+    } catch (err) {
+      console.error("Error al configurar la cámara RealSense:", err);
+      alert("No se pudo acceder a la cámara RealSense. Verifica la conexión o permisos.");
+      webcamRunning = false;
+      enableWebcamButton.innerText = "ENABLE PREDICTIONS";
+    }
   }
-
-  const constraints = { video: true };
-
-  navigator.mediaDevices.getUserMedia(constraints).then(async (stream) => {
-    video.srcObject = stream;
-    video.addEventListener("loadeddata", initAndPredict);
-
-    runningMode = "VIDEO";
-    await handLandmarker.setOptions({ runningMode: "VIDEO" });
-  });
 }
 
 let lastVideoTime = -1;
@@ -164,13 +183,9 @@ async function initAndPredict() {
     renderer2.toneMapping = THREE.ACESFilmicToneMapping;
     renderer2.toneMappingExposure = 1.2; // 1.0–1.5
 
-    //camera2.position.z = 10;
+    camera2.position.z = 10;
     camera2.lookAt(new THREE.Vector3(0, 0, 0));
 
-    camera2.position.z = 10; // or any value > 0
-    //camera2.lookAt(new THREE.Vector3(canvasElement2.width / 2, canvasElement2.height / 2, 0));
-
-    //camera2.lookAt(new THREE.Vector3(width/2, height/2, 0));
     // once during init (scene setup)
     const amb = new THREE.AmbientLight(0xffffff, 1.0);
     scene2.add(amb);
@@ -178,6 +193,7 @@ async function initAndPredict() {
     const dir = new THREE.DirectionalLight(0xffffff, 0.8);
     dir.position.set(0.5 * canvasElement2.width, -1 * canvasElement2.height, 200);
     scene2.add(dir);
+
     // === AUDIO: inicializar tras tener cámara y tras click del usuario ===
     if (userInteracted && !audioReady) {
       await FireworkAudio.init(camera2, {
