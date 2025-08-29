@@ -296,6 +296,7 @@ async function predictWebcam() {
     }
   }
 
+  //Este Draw viene de handpainter
   draw(results);
   canvasCtx.restore();
 

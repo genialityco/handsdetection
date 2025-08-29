@@ -215,7 +215,7 @@ export class FireworkSystem {
       let n = new FireworkSystem.Node(this.fireworkSystem, this);
       n.flow = this.fireworkSystem.flow.start(fn, n, ctx);
       n.flow.onDone = () => (n.dead = true);
-      console.log("Emitting node with direction:", direction);
+      console.log("PARTICULAS Emit node with direction:", direction);
       if (direction) {
         n.velocity.copy(direction);
       } else {
