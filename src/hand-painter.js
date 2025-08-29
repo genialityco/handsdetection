@@ -17,6 +17,8 @@ export function initHandPainter(scene, width, height, renderer, camera) {
     ]);
     const material = new THREE.LineBasicMaterial({
       color: color,
+      transparent: true,
+      opacity: 0.7, // Adjust for desired translucency
       linewidth: Math.min(10, Math.max(1, speed / 200)),
     });
     const line = new THREE.Line(geometry, material);
@@ -86,18 +88,15 @@ hand movement distante calculations? to then calculate the firework power?
           const totalUpward = stroke[0].y - stroke[stroke.length - 1].y;
           if (totalUpward > MIN_UPWARD_DIST) {
             createLine(stroke[0].x, stroke[0].y, stroke[stroke.length - 1].x, stroke[stroke.length - 1].y, speed);
-          launchFireworkTrajectory(
-            scene,
-            stroke[0].x,
-            stroke[0].y,
-            stroke[stroke.length - 1].x,
-            stroke[stroke.length - 1].y,
-            renderer,
-            camera
-          );
-
-
-
+            launchFireworkTrajectory(
+              scene,
+              stroke[0].x,
+              stroke[0].y,
+              stroke[stroke.length - 1].x,
+              stroke[stroke.length - 1].y,
+              renderer,
+              camera
+            );
           }
           stroke = [];
           lastTriggerTime = now;
