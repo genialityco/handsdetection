@@ -290,10 +290,10 @@ async function predictWebcam() {
       // });
 
       drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
-        color: "#00FF00",
+        color: "#AAAAAA",
         lineWidth: 5,
       });
-      drawLandmarks(canvasCtx, landmarks, { color: "#FF0000", lineWidth: 2 });
+      drawLandmarks(canvasCtx, landmarks, { color: "#DDDDDD", lineWidth: 2 });
     }
   }
 

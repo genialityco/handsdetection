@@ -378,7 +378,7 @@ export class FireworkSystem {
 shell = function* (shell) {
   const shellPower = shell.power || 1.0;
   
-  shell.velocity.y += 1 * shellPower; // Scale initial velocity by power
+  shell.velocity.y += 0.8 * shellPower; // Scale initial velocity by power
   shell.velocity.x *= 1.5 * shellPower;
   shell.velocity.z *= 1.5 * shellPower;
   shell.power = 2 * Math.random() * shellPower + shellPower; // Scale explosion power
@@ -396,7 +396,7 @@ shell = function* (shell) {
   );
   
   // Special effect: thraxBomb (more likely with higher power)
-  if (this.thraxBomb && Math.random() < (shellPower * 0.1)) {
+  if (this.thraxBomb && Math.random() < (shellPower * 0.3)) {
     this.sys.emit(this.thraxBomb, shell);
   }
   
