@@ -78,11 +78,17 @@ export class FireworkSystem {
       // Calculate direction vector
       const direction = endVec3.clone().sub(initVec3).normalize();
 
-      console.log("World positions:", initVec3, endVec3, "Direction:", direction);
+      // Calculate power based on y coordinate (lower y = higher power)
+      // initY close to 0 (top of screen) = low power
+      // initY close to canvas height (bottom) = high power
+      const canvasHeight = rect.height;
+      const normalizedY = initY / canvasHeight; // 0 = top, 1 = bottom
+      const calculatedPower = Math.max(0.2, Math.min(1, normalizedY * 1)); // Range: 0.2 to 2.0
 
-      // Now you can use initVec3 as the position and direction for your firework
-      // Example:
-      this.fire(this.fire, initVec3, direction);
+      console.log("World positions:", initVec3, endVec3, "Direction:", direction, "Power:", calculatedPower);
+
+      // Fire with calculated power
+      this.fire(initVec3, direction, calculatedPower);
     });
     canvas.addEventListener("mousedown", (event) => {
       return;
@@ -369,30 +375,37 @@ export class FireworkSystem {
   /**
    * Generator for shell (main firework) particles.
    */
-  shell = function* (shell) {
-    shell.velocity.y += 1;
-    shell.velocity.x *= 1.5;
-    shell.velocity.z *= 1.5;
-    shell.power = 2 * Math.random() * 1 + 1;
-    shell.life = 1.05 * shell.power;
-    yield shell.life * 1000;
-    shell.dead = true;
-    //Play explosion sound
-    this.audio.play(
-      Math.random() > 0.1 ? "boom0" : "pop0",
-      shell.position,
-      Math.random() * 0.2 + 0.5,
-      Math.random() * 2700 - 2000
-    );
-    // Special effect: thraxBomb
-    if (this.thraxBomb && !Math.floor(Math.random() * 20)) {
-      this.sys.emit(this.thraxBomb, shell);
-    }
-    //Emit sparks
-    for (let i = 0; i < 50; i++) {
-      this.sys.emit(this.spark, shell);
-    }
-  }.bind(this);
+shell = function* (shell) {
+  const shellPower = shell.power || 1.0;
+  
+  shell.velocity.y += 1 * shellPower; // Scale initial velocity by power
+  shell.velocity.x *= 1.5 * shellPower;
+  shell.velocity.z *= 1.5 * shellPower;
+  shell.power = 2 * Math.random() * shellPower + shellPower; // Scale explosion power
+  shell.life = 1.05 * shell.power; // Life scales with power
+  
+  yield shell.life * 1000;
+  shell.dead = true;
+  
+  // Play explosion sound with power-based volume
+  this.audio.play(
+    Math.random() > 0.1 ? "boom0" : "pop0",
+    shell.position,
+    Math.random() * 0.2 + 0.5 + (shellPower * 0.2), // Louder for higher power
+    Math.random() * 2700 - 2000
+  );
+  
+  // Special effect: thraxBomb (more likely with higher power)
+  if (this.thraxBomb && Math.random() < (shellPower * 0.1)) {
+    this.sys.emit(this.thraxBomb, shell);
+  }
+  
+  // Emit more sparks for higher power
+  const sparkCount = Math.floor(50 * shellPower);
+  for (let i = 0; i < sparkCount; i++) {
+    this.sys.emit(this.spark, shell);
+  }
+}.bind(this);
 
   /**
    * Generator for launcher (periodic shell firing).
@@ -421,15 +434,19 @@ export class FireworkSystem {
   //     shell.position.copy(position);
   //   }
 
-  fire = function (fire, position = this.vec3(0, 0, 0), direction) {
-    console.log("Firing firework at", direction);
-    //yield Math.floor(Math.random() * 20) + 10;
-    let shell = this.sys.emit(this.shell, fire, direction);
-    direction.x += Math.random() * 0.2 - 0.1;
+  // Update the fire method to accept power parameter
+  fire = function (position = this.vec3(0, 0, 0), direction, power = 1.0) {
+    console.log("Firing firework at", position, "with direction", direction, "and power", power);
 
-    let shell2 = this.sys.emit(this.shell, fire, direction);
+    let shell = this.sys.emit(this.shell, { position, power }, direction);
+
+    // Add some randomization for multiple shells
     direction.x += Math.random() * 0.2 - 0.1;
-    let shell3 = this.sys.emit(this.shell, fire, direction);
+    let shell2 = this.sys.emit(this.shell, { position, power }, direction);
+
+    direction.x += Math.random() * 0.2 - 0.1;
+    let shell3 = this.sys.emit(this.shell, { position, power }, direction);
+
     shell.position.copy(position);
     shell2.position.copy(position);
     shell3.position.copy(position);
