@@ -279,20 +279,30 @@ export class FireworkSystem {
    * Node (particle) class.
    * Represents a single firework particle.
    */
-  static Node = class {
-    constructor(fireworkSystem, sys) {
-      this.sys = sys;
-      this.life = 0.2;
-      this.spawntime = sys.now;
-      this.mass = 1;
-      this.drag = 0;
-      this.position = fireworkSystem.vec3(0, 0, 0);
-      this.velocity = fireworkSystem.vec3();
-      this.color = (Math.random() * (1 << 24)) | 0;
-      this.prims = new Array(8);
-      this.ptop = 0;
-      this.dd = fireworkSystem.dd;
-    }
+static Node = class {
+  constructor(fireworkSystem, sys) {
+    this.sys = sys;
+    this.life = 0.2;
+    this.spawntime = sys.now;
+    this.mass = 1;
+    this.drag = 0.98;
+    this.position = fireworkSystem.vec3(0, 0, 0);
+    this.velocity = fireworkSystem.vec3();
+
+    // 🎨 Paleta violeta + dorado
+    const palette = [
+      0x8A2BE2, // Blue Violet
+      0x9400D3, // Dark Violet
+      0xBA55D3, // Orchid
+      0xFFD700, // Gold
+      0xDAA520  // Goldenrod
+    ];
+    this.color = palette[Math.floor(Math.random() * palette.length)];
+
+    this.prims = new Array(8);
+    this.ptop = 0;
+    this.dd = fireworkSystem.dd;
+  }
     /**
      * Destroy a primitive (visual line segment).
      */
@@ -334,7 +344,7 @@ export class FireworkSystem {
       this.position.add(_p);
       this.dd.lineto(this.position);
       // Gravity and bounce
-      this.velocity.y += -0.0098 * this.mass * this.sys.ndt;
+      this.velocity.y += -0.003 * this.mass * this.sys.ndt;
       if (this.position.y < 0) {
         this.position.y = 0 - this.position.y;
         this.velocity.y *= -1;
@@ -343,14 +353,14 @@ export class FireworkSystem {
         if (this.drag) this.velocity.multiplyScalar(this.drag);
       }
       // Fade trail
-      for (let i = 0, t = Math.min(this.prims.length, this.ptop); i < t; i++) {
-        let id = (this.ptop + i) % this.prims.length;
-        let p = this.prims[id];
-        let brightness = (i / t) * ((1 - age) ** 2 * 2.0);
-        this.dd.pushtop(p);
-        this.dd.lineCol(this.dd._color, brightness);
-        this.dd.poptop();
-      }
+for (let i = 0, t = Math.min(this.prims.length, this.ptop); i < t; i++) {
+  let id = (this.ptop + i) % this.prims.length;
+  let p = this.prims[id];
+  let brightness = (i / t) * ((2 - age) ** 2 * 2.0);
+  this.dd.pushtop(p);
+  this.dd.lineCol(this.dd._color, brightness);
+  this.dd.poptop();
+}
       // Remove if dead
       if (this.dead) {
         this.dispose();
