@@ -73,7 +73,10 @@ const createHandLandmarker = async () => {
     loaderContainer.style.display = "none";
     demosSection.classList.remove("invisible");
     enableWebcamButton = document.getElementById("webcamButton");
-    enableWebcamButton.addEventListener("click", enableCam);
+    //enableWebcamButton.addEventListener("click", enableCam);
+    const btn = document.getElementById("startExperienceBtn");
+    btn.style.display = "block";
+    enableCam();
   } catch (error) {
     console.error("Failed to load model:", error);
     loaderContainer.querySelector(".loading-text").textContent = "Failed to load model. Please refresh the page.";
@@ -113,7 +116,7 @@ async function enableCam(event) {
     enableWebcamButton.innerText = "ENABLE PREDICTIONS";
     // Detener el stream de video si se desactiva
     if (video.srcObject) {
-      video.srcObject.getTracks().forEach(track => track.stop());
+      video.srcObject.getTracks().forEach((track) => track.stop());
       video.srcObject = null;
     }
   } else {
@@ -127,8 +130,10 @@ async function enableCam(event) {
 
       // Enumerar dispositivos para encontrar la RealSense RGB
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(device => device.kind === 'videoinput');
-      const realsenseDevice = videoDevices.find(device => device.label.includes('RealSense') && device.label.includes('RGB'));
+      const videoDevices = devices.filter((device) => device.kind === "videoinput");
+      const realsenseDevice = videoDevices.find(
+        (device) => device.label.includes("RealSense") && device.label.includes("RGB")
+      );
 
       // Definir constraints para la cámara
       const constraints = {
@@ -284,7 +289,6 @@ async function predictWebcam() {
     color: 0xffcc99,
   };
   if (results.landmarks) {
-
     for (const landmarks of results.landmarks) {
       // drawCustomConnectors(scene2, landmarks, HAND_CONNECTIONS, {
       //   width: canvasElement2.width,
