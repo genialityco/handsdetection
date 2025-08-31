@@ -13,7 +13,8 @@ export default class Audio {
       let listener = new THREE.AudioListener();
       camera.add(listener);
       this.audioLoader = new THREE.AudioLoader();
-      this.load("boom0", "./assets/boom.mp3");
+      //this.load("boom0", "./assets/boom.mp3");
+      this.load("boom0", "./assets/firework_fx.mp3");
       this.load("launch0", "./assets/launch.mp3");
       this.load("pop0", "./assets/pop.mp3");
 
