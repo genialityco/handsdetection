@@ -101,15 +101,15 @@ export function initHandPainter(scene, width, height, renderer, camera) {
             speed
           );
 
-          launchFireworkTrajectory(
-            scene,
-            strokes[handIndex][0].x,
-            strokes[handIndex][0].y,
-            strokes[handIndex][strokes[handIndex].length - 1].x,
-            strokes[handIndex][strokes[handIndex].length - 1].y,
-            renderer,
-            camera
-          );
+          // launchFireworkTrajectory(
+          //   scene,
+          //   strokes[handIndex][0].x,
+          //   strokes[handIndex][0].y,
+          //   strokes[handIndex][strokes[handIndex].length - 1].x,
+          //   strokes[handIndex][strokes[handIndex].length - 1].y,
+          //   renderer,
+          //   camera
+          // );
         }
         strokes[handIndex] = [];
         lastTriggerTimes[handIndex] = now;

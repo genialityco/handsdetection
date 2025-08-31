@@ -7,20 +7,20 @@ export default class Audio {
 
         this.play = (name,position,volume,detune)=>{}
         let firstClick = ()=>{
-            // document.removeEventListener('pointerdown', firstClick)
-            // let listener = new THREE.AudioListener()
-            // camera.add(listener)
-            // this.audioLoader = new THREE.AudioLoader();
-            // this.load('boom0', './assets/boom0.mp3')
-            // this.load('launch0', './assets/launch0.mp3')
-            // this.load('pop0', './assets/pop0.mp3')
+            document.removeEventListener('pointerdown', firstClick)
+            let listener = new THREE.AudioListener()
+            camera.add(listener)
+            this.audioLoader = new THREE.AudioLoader();
+            this.load('boom0', './assets/boom.mp3')
+            this.load('launch0', './assets/launch.mp3')
+            this.load('pop0', './assets/pop.mp3')
                 
-            // this.listener = listener;
-            // this.play=this._play;
-            // setTimeout(()=>{
-            //     this.play('boom0')
-            // }
-            // , 1000)
+            this.listener = listener;
+            this.play=this._play;
+            setTimeout(()=>{
+                this.play('boom0')
+            }
+            , 1000)
         }
 
         document.addEventListener('pointerdown', firstClick)
