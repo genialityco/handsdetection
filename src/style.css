@@ -66,8 +66,8 @@ body.fullcoveringbackground {
 
 @media (orientation: portrait) {
   .info_images {
-    max-width: 80%;
-    min-width: 60%; 
+    max-width: 60%;
+    min-width: 40%; 
   }
 }
 

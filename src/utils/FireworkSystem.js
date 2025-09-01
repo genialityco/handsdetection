@@ -83,7 +83,7 @@ export class FireworkSystem {
       // initY close to canvas height (bottom) = high power
       const canvasHeight = rect.height;
       const normalizedY = initY / canvasHeight; // 0 = top, 1 = bottom
-      const calculatedPower = Math.max(0.2, Math.min(1, normalizedY * 1)); // Range: 0.2 to 2.0
+      const calculatedPower = Math.max(0.2, Math.min(0.8, normalizedY * 0.5)); // Range: 0.2 to 2.0
 
       console.log("World positions:", initVec3, endVec3, "Direction:", direction, "Power:", calculatedPower);
 
@@ -207,10 +207,16 @@ export class FireworkSystem {
               _p.applyQuaternion(this.camera.quaternion);
               n.position.copy(shell.position);
               n.position.add(_p);
-              _p.multiplyScalar(1.5);
+              // _p.multiplyScalar(1.5);
+              // n.velocity.copy(_p);
+              // n.velocity.add(shell.velocity);
+              // Reduce outward velocity so sparks stay closer to the text
+              _p.multiplyScalar(1); // smaller = tighter text shape
               n.velocity.copy(_p);
-              n.velocity.add(shell.velocity);
+              n.velocity.addScaledVector(shell.velocity, 0.7); // less influence from shell
+
               n.life = Math.random() * (3 - 1.5) + 1.5;
+
               n.mass = 1.2;
               n.drag = 0.99;
               yield n.life * 1000;
@@ -279,30 +285,30 @@ export class FireworkSystem {
    * Node (particle) class.
    * Represents a single firework particle.
    */
-static Node = class {
-  constructor(fireworkSystem, sys) {
-    this.sys = sys;
-    this.life = 0.2;
-    this.spawntime = sys.now;
-    this.mass = 1;
-    this.drag = 0.98;
-    this.position = fireworkSystem.vec3(0, 0, 0);
-    this.velocity = fireworkSystem.vec3();
+  static Node = class {
+    constructor(fireworkSystem, sys) {
+      this.sys = sys;
+      this.life = 0.2;
+      this.spawntime = sys.now;
+      this.mass = 1;
+      this.drag = 0.98;
+      this.position = fireworkSystem.vec3(0, 0, 0);
+      this.velocity = fireworkSystem.vec3();
 
-    // 🎨 Paleta violeta + dorado
-    const palette = [
-      0x8A2BE2, // Blue Violet
-      0x9400D3, // Dark Violet
-      0xBA55D3, // Orchid
-      0xFFD700, // Gold
-      0xDAA520  // Goldenrod
-    ];
-    this.color = palette[Math.floor(Math.random() * palette.length)];
+      // 🎨 Paleta violeta + dorado
+      const palette = [
+        0x8a2be2, // Blue Violet
+        0x9400d3, // Dark Violet
+        0xba55d3, // Orchid
+        0xffd700, // Gold
+        0xdaa520, // Goldenrod
+      ];
+      this.color = palette[Math.floor(Math.random() * palette.length)];
 
-    this.prims = new Array(8);
-    this.ptop = 0;
-    this.dd = fireworkSystem.dd;
-  }
+      this.prims = new Array(8);
+      this.ptop = 0;
+      this.dd = fireworkSystem.dd;
+    }
     /**
      * Destroy a primitive (visual line segment).
      */
@@ -353,14 +359,14 @@ static Node = class {
         if (this.drag) this.velocity.multiplyScalar(this.drag);
       }
       // Fade trail
-for (let i = 0, t = Math.min(this.prims.length, this.ptop); i < t; i++) {
-  let id = (this.ptop + i) % this.prims.length;
-  let p = this.prims[id];
-  let brightness = (i / t) * ((2 - age) ** 2 * 2.0);
-  this.dd.pushtop(p);
-  this.dd.lineCol(this.dd._color, brightness);
-  this.dd.poptop();
-}
+      for (let i = 0, t = Math.min(this.prims.length, this.ptop); i < t; i++) {
+        let id = (this.ptop + i) % this.prims.length;
+        let p = this.prims[id];
+        let brightness = (i / t) * ((2 - age) ** 2 * 2.0);
+        this.dd.pushtop(p);
+        this.dd.lineCol(this.dd._color, brightness);
+        this.dd.poptop();
+      }
       // Remove if dead
       if (this.dead) {
         this.dispose();
@@ -385,37 +391,37 @@ for (let i = 0, t = Math.min(this.prims.length, this.ptop); i < t; i++) {
   /**
    * Generator for shell (main firework) particles.
    */
-shell = function* (shell) {
-  const shellPower = shell.power || 1.0;
-  
-  shell.velocity.y += 0.8 * shellPower; // Scale initial velocity by power
-  shell.velocity.x *= 1.5 * shellPower;
-  shell.velocity.z *= 1.5 * shellPower;
-  shell.power = 2 * Math.random() * shellPower + shellPower; // Scale explosion power
-  shell.life = 1.05 * shell.power; // Life scales with power
-  
-  yield shell.life * 1000;
-  shell.dead = true;
-  
-  // Play explosion sound with power-based volume
-  this.audio.play(
-    Math.random() > 0.1 ? "boom0" : "pop0",
-    shell.position,
-    Math.random() * 0.2 + 0.5 + (shellPower * 0.2), // Louder for higher power
-    Math.random() * 2700 - 2000
-  );
-  
-  // Special effect: thraxBomb (more likely with higher power)
-  if (this.thraxBomb && Math.random() < (shellPower * 0.3)) {
-    this.sys.emit(this.thraxBomb, shell);
-  }
-  
-  // Emit more sparks for higher power
-  const sparkCount = Math.floor(50 * shellPower);
-  for (let i = 0; i < sparkCount; i++) {
-    this.sys.emit(this.spark, shell);
-  }
-}.bind(this);
+  shell = function* (shell) {
+    const shellPower = shell.power || 1.0;
+
+    shell.velocity.y += 0.8 * shellPower; // Scale initial velocity by power
+    shell.velocity.x *= 1.5 * shellPower;
+    shell.velocity.z *= 1.5 * shellPower;
+    shell.power = 2 * Math.random() * shellPower + shellPower; // Scale explosion power
+    shell.life = 1.05 * shell.power; // Life scales with power
+
+    yield shell.life * 1000;
+    shell.dead = true;
+
+    // Play explosion sound with power-based volume
+    this.audio.play(
+      Math.random() > 0.1 ? "boom0" : "pop0",
+      shell.position,
+      Math.random() * 0.2 + 0.5 + shellPower * 0.2, // Louder for higher power
+      Math.random() * 2700 - 2000
+    );
+
+    // Special effect: thraxBomb (more likely with higher power)
+    if (this.thraxBomb && Math.random() < shellPower * 0.3) {
+      this.sys.emit(this.thraxBomb, shell);
+    }
+
+    // Emit more sparks for higher power
+    const sparkCount = Math.floor(50 * shellPower);
+    for (let i = 0; i < sparkCount; i++) {
+      this.sys.emit(this.spark, shell);
+    }
+  }.bind(this);
 
   /**
    * Generator for launcher (periodic shell firing).
@@ -451,14 +457,14 @@ shell = function* (shell) {
     let shell = this.sys.emit(this.shell, { position, power }, direction);
 
     // Add some randomization for multiple shells
-    direction.x += Math.random() * 0.2 - 0.1;
-    let shell2 = this.sys.emit(this.shell, { position, power }, direction);
+    // direction.x += Math.random() * 0.2 - 0.1;
+    // let shell2 = this.sys.emit(this.shell, { position, power }, direction);
 
-    direction.x += Math.random() * 0.2 - 0.1;
-    let shell3 = this.sys.emit(this.shell, { position, power }, direction);
+    // direction.x += Math.random() * 0.2 - 0.1;
+    // let shell3 = this.sys.emit(this.shell, { position, power }, direction);
 
     shell.position.copy(position);
-    shell2.position.copy(position);
-    shell3.position.copy(position);
+    //shell2.position.copy(position);
+    //shell3.position.copy(position);
   }.bind(this);
 }

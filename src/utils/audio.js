@@ -17,10 +17,14 @@ this.play = (name, position, volume = 1, detune = 0) => {
 
   // Si es el background, lo ponemos en loop
   if (name === "background") {
+    sound.setVolume(0.3);
     sound.setLoop(true);
   }
+  //}else{
+     sound.play();
+  //}
 
-  sound.play();
+ 
   return sound;
 };
 
@@ -34,6 +38,9 @@ let firstClick = () => {
   this.audioLoader = new THREE.AudioLoader();
 
   this.load("boom0", "./assets/firework_fx.mp3");
+  //this.load("boom0", "./assets/musicexplotionshort.mp3");
+  //this.load("boom0", "./assets/edm_firework.mp3");
+ 
   this.load("launch0", "./assets/launch.mp3");
   this.load("pop0", "./assets/pop.mp3");
   this.load("background", "./assets/SoccerFull.mp3");
