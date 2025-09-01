@@ -20,43 +20,56 @@
   </head>
 
   <body class="fullcoveringbackground">
-
-<button id="startExperienceBtn" style="
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  display:none;
-  transform: translate(-50%, -50%);
-  z-index: 9999;
-  padding: 2rem 4rem;
-  font-size: 2rem;
-  background: #d32f2f;
-  color: white;
-  border: none;
-  border-radius: 2rem;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
-  cursor: pointer;
-  transition: background 0.2s;
-">
-  INICIAR EXPERIENCIA
-</button>
+    <button
+      id="startExperienceBtn"
+      style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        display: none;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+        padding: 2rem 4rem;
+        font-size: 2rem;
+        background: #d32f2f;
+        color: white;
+        border: none;
+        border-radius: 2rem;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: background 0.2s;
+      "
+    >
+      INICIAR EXPERIENCIA
+    </button>
 
     <video id="videofondo" autoplay muted loop playsinline src="/src/assets/FONDO_ESTADIO_LENOVO.mp4"></video>
     <script type="module" src="/src/main.js"></script>
 
     <section id="demos" class="invisible">
       <img id="lenovo_logo" class="info_images" src="/src/assets/LOGOS_LENOVO_FIFA.png" alt="Lenovo + FIFA" />
-      <img
-        id="texto_vive_el_inicio"
-        class="info_images"
-        src="/src/assets/texto_vive_el_inicio.svg"
-        alt="Lenovo + FIFA"
-      />
-      <!-- <img id="personas" class="info_images" src="/src/assets/personas.svg" alt="Lenovo + FIFA" />
-      <img id="texto_instrucciones" class="info_images" src="/src/assets/texto_instrucciones.svg" alt="Lenovo + FIFA" /> -->
-      <!-- <h2>Demo: Webcam continuous hands landmarks detection</h2>
-    <p>Hold your hand in front of your webcam to get real-time hand landmarker detection.</br>Click <b>enable webcam</b>
-      below and grant access to the webcam if prompted.</p> -->
+   
+        <img
+          id="texto_vive_el_inicio"
+          class="info_images texto_secundario"
+          src="/src/assets/texto_vive_el_inicio.svg"
+          alt="Lenovo + FIFA"
+        />
+     
+      <!-- <div class="texto_secundario slide2">
+        <img id="personas" class="info_images texto_secundario" src="/src/assets/personas.svg" alt="Lenovo + FIFA" />
+        <img
+          id="texto_instrucciones"
+          class="info_image texto_secundario"
+          src="/src/assets/texto_instrucciones.svg"
+          alt="Lenovo + FIFA"
+        />
+      </div>
+
+      <div class="texto_secundario slide3">
+        <h2>Experience</h2>
+        <p>Experience Powered by Lenovo</p>
+      </div> -->
 
       <div id="liveView" class="videoView"></div>
     </section>
@@ -78,7 +91,7 @@
       <span class="mdc-button__ripple"></span>
       <span class="mdc-button__label">ENABLE WEBCAM</span>
     </button>
-    
+
     <div id="loader-container">
       <div class="loader">
         <div class="soccer-ball"></div>

@@ -97,6 +97,9 @@ const renderer2 = new THREE.WebGLRenderer({
   alpha: true,
   premultipliedAlpha: false,
   canvas: canvasElement2,
+  powerPreference: "high-performance", // ⚡ prefers discrete GPU
+  preserveDrawingBuffer: false, // faster unless you need screenshots
+  premultipliedAlpha: false,
 });
 
 // Check if webcam access is supported.
