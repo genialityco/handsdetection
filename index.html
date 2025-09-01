@@ -5,7 +5,28 @@
     <title>Hand Painter with Three.js</title>
     <!-- <link rel="stylesheet" href="/src/style.css" /> -->
 
-    <style></style>
+    <style>
+      #pauseButton {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #pauseButton:hover {
+        background: rgba(0, 0, 0, 0.8);
+      }
+    </style>
 
     <link
       href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"
@@ -43,6 +64,12 @@
 
     <video id="videofondo" autoplay muted loop playsinline src="/src/assets/FONDO_ESTADIO_LENOVO.mp4"></video>
     <script type="module" src="/src/main.js"></script>
+
+    <!-- 🎵 Audio en bucle -->
+    <audio id="backgroundAudio" src="/src/assets/Soccer Full.wav" autoplay loop></audio>
+
+    <!-- Botón de pausa -->
+    <button id="pauseButton">⏸</button>
 
     <section id="demos" class="invisible">
       <img id="lenovo_logo" class="info_images" src="/src/assets/LOGOS_LENOVO_FIFA.png" alt="Lenovo + FIFA" />
@@ -88,5 +115,23 @@
         <div class="loading-text">Loading AI Skills...</div>
       </div>
     </div>
+
+    <script>
+      const audio = document.getElementById("backgroundAudio");
+      const button = document.getElementById("pauseButton");
+
+      // volumen bajo
+      audio.volume = 0.1;
+
+      button.addEventListener("click", () => {
+        if (audio.paused) {
+          audio.play();
+          button.textContent = "⏸";
+        } else {
+          audio.pause();
+          button.textContent = "▶️";
+        }
+      });
+    </script>
   </body>
 </html>
