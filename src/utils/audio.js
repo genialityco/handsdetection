@@ -5,31 +5,53 @@ export default class Audio {
     this.sounds = {};
     this.soundsLoading = {};
 
-    this.play = (name, position, volume, detune) => {};
-    let firstClick = () => {
-      document.removeEventListener("pointerdown", firstClick);
-      const btn = document.getElementById("startExperienceBtn");
-      btn.style.display = "none";
-      let listener = new THREE.AudioListener();
-      camera.add(listener);
-      this.audioLoader = new THREE.AudioLoader();
-      //this.load("boom0", "./assets/boom.mp3");
-      this.load("boom0", "./assets/firework_fx.mp3");
-      this.load("launch0", "./assets/launch.mp3");
-      this.load("pop0", "./assets/pop.mp3");
+this.play = (name, position, volume = 1, detune = 0) => {
+  const soundData = this.sounds[name];
+  if (!soundData || !soundData.buffer) return;
 
-      this.listener = listener;
-      this.play = this._play;
-      setTimeout(() => {
-        this.play("boom0");
-      }, 1000);
-    };
+  // Creamos una instancia de Audio
+  const sound = new THREE.Audio(this.listener);
+  sound.setBuffer(soundData.buffer);
+  sound.setVolume(volume);
+  sound.setDetune(detune);
+
+  // Si es el background, lo ponemos en loop
+  if (name === "background") {
+    sound.setLoop(true);
+  }
+
+  sound.play();
+  return sound;
+};
+
+let firstClick = () => {
+  document.removeEventListener("pointerdown", firstClick);
+  const btn = document.getElementById("startExperienceBtn");
+  btn.style.display = "none";
+
+  let listener = new THREE.AudioListener();
+  camera.add(listener);
+  this.audioLoader = new THREE.AudioLoader();
+
+  this.load("boom0", "./assets/firework_fx.mp3");
+  this.load("launch0", "./assets/launch.mp3");
+  this.load("pop0", "./assets/pop.mp3");
+  this.load("background", "./assets/SoccerFull.mp3");
+
+  this.listener = listener;
+
+  // Esperamos a que cargue y reproducimos en loop
+  setTimeout(() => {
+    this.play("background", null, 0.5); // volumen más bajo para no molestar
+  }, 1000);
+};
 
     document.addEventListener("pointerdown", firstClick);
   }
 
   load(name, url) {
     this.soundsLoading[name] = url;
+    console.log(url)
     this.audioLoader.load(url, (buffer) => {
       this.sounds[name] = {
         name,
