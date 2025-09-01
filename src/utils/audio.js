@@ -17,7 +17,8 @@ export default class Audio {
       this.load("boom0", "./assets/firework_fx.mp3");
       this.load("launch0", "./assets/launch.mp3");
       this.load("pop0", "./assets/pop.mp3");
-
+      this.load("background", "./assets/SoccerFull.mp3")
+      
       this.listener = listener;
       this.play = this._play;
       setTimeout(() => {
@@ -30,6 +31,7 @@ export default class Audio {
 
   load(name, url) {
     this.soundsLoading[name] = url;
+    console.log(url)
     this.audioLoader.load(url, (buffer) => {
       this.sounds[name] = {
         name,
