@@ -62,7 +62,7 @@ const createHandLandmarker = async () => {
         delegate: "GPU",
       },
       runningMode: runningMode,
-      numHands: 2,
+      numHands: 6,
       minHandDetectionConfidence: 0.5, // Ajustado para baja luz
       minHandPresenceConfidence: 0.5,
       minTrackingConfidence: 0.5,

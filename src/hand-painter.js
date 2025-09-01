@@ -1,15 +1,40 @@
 import * as THREE from "three";
 import { launchFireworkTrajectory } from "./firework.js";
 
+/* Landmark Index Mapping
+
+0  - wrist  
+1  - thumb CMC (base)  
+2  - thumb MCP  
+3  - thumb IP  
+4  - thumb tip  
+5  - index finger MCP  
+6  - index finger PIP  
+7  - index finger DIP  
+8  - index finger tip  
+9  - middle finger MCP  
+10 - middle finger PIP  
+11 - middle finger DIP  
+12 - middle finger tip  
+13 - ring finger MCP  
+14 - ring finger PIP  
+15 - ring finger DIP  
+16 - ring finger tip  
+17 - pinky MCP  
+18 - pinky PIP  
+19 - pinky DIP  
+20 - pinky tip 
+*/
+
 // --- EXPORT PRINCIPAL ---
 export function initHandPainter(scene, width, height, renderer, camera) {
-  // Arrays para manejar dos manos
-  const prevPoints = [null, null];
-  const smoothedPoints = [null, null];
-  const strokes = [[], []];
-  const lastDirections = [null, null];
-  const lastTriggerTimes = [0, 0];
-  
+  // Arrays para manejar  manos
+  const prevPoints = [];
+  const smoothedPoints = [];
+  const strokes = [];
+  const lastDirections = [];
+  const lastTriggerTimes = [];
+
   let prevTime = performance.now();
   const MAX_HISTORY = 2000;
   const drawLines = [];
@@ -45,6 +70,13 @@ export function initHandPainter(scene, width, height, renderer, camera) {
 
   // Función para procesar una mano individual
   function processHand(handIndex, tip, now, dt) {
+    // Ensure arrays are initialized for this hand
+    if (!strokes[handIndex]) strokes[handIndex] = [];
+    if (!prevPoints[handIndex]) prevPoints[handIndex] = null;
+    if (!smoothedPoints[handIndex]) smoothedPoints[handIndex] = null;
+    if (!lastDirections[handIndex]) lastDirections[handIndex] = null;
+    if (!lastTriggerTimes[handIndex]) lastTriggerTimes[handIndex] = 0;
+
     const punto = {
       x: tip.x * width,
       y: tip.y * height,
@@ -74,7 +106,7 @@ export function initHandPainter(scene, width, height, renderer, camera) {
       }
 
       // Procesar fin de trazo
-      if (shouldEndStroke && strokes[handIndex].length > 1) {
+      if (shouldEndStroke && strokes[handIndex] && strokes[handIndex].length > 1) {
         const totalUpward = strokes[handIndex][0].y - strokes[handIndex][strokes[handIndex].length - 1].y;
         if (totalUpward > MIN_UPWARD_DIST) {
           const lineDrawnEvent = new CustomEvent("lineDrawn", {
@@ -86,18 +118,18 @@ export function initHandPainter(scene, width, height, renderer, camera) {
               initY: strokes[handIndex][0].y,
               endX: strokes[handIndex][strokes[handIndex].length - 1].x,
               endY: strokes[handIndex][strokes[handIndex].length - 1].y,
-              power: Math.min(1, speed / 3000)
-            }
+              power: Math.min(1, speed / 3000),
+            },
           });
 
           console.log(`HAND ${handIndex} EMITER EVENTS lineDrawn`, canvastarget, lineDrawnEvent);
           canvastarget.dispatchEvent(lineDrawnEvent);
 
           createLine(
-            strokes[handIndex][0].x, 
-            strokes[handIndex][0].y, 
-            strokes[handIndex][strokes[handIndex].length - 1].x, 
-            strokes[handIndex][strokes[handIndex].length - 1].y, 
+            strokes[handIndex][0].x,
+            strokes[handIndex][0].y,
+            strokes[handIndex][strokes[handIndex].length - 1].x,
+            strokes[handIndex][strokes[handIndex].length - 1].y,
             speed
           );
 
@@ -132,21 +164,31 @@ export function initHandPainter(scene, width, height, renderer, camera) {
 
     if (results.landmarks && results.landmarks.length > 0) {
       console.log("Detected hands:", results.landmarks.length);
-      
-      // Procesar cada mano detectada (máximo 2)
-      for (let i = 0; i < Math.min(results.landmarks.length, 2); i++) {
-        if (results.landmarks[i] && results.landmarks[i][8]) {
-          processHand(i, results.landmarks[i][8], now, dt);
+
+      // Procesar cada mano detectada
+      for (let i = 0; i < results.landmarks.length; i++) {
+        const hand = results.landmarks[i];
+        // Fingertip indices: [4, 8, 12, 16, 20]
+        const tipIndices = [8, 12, 16, 20, 4]; // index, middle, ring, pinky, thumb
+        let tip = null;
+        for (const idx of tipIndices) {
+          if (hand && hand[idx]) {
+            tip = hand[idx];
+            break;
+          }
+        }
+        if (tip) {
+          processHand(i, tip, now, dt);
         }
       }
 
       // Resetear manos que ya no están detectadas
-      for (let i = results.landmarks.length; i < 2; i++) {
-        prevPoints[i] = null;
-        smoothedPoints[i] = null;
-        strokes[i] = [];
-        lastDirections[i] = null;
-      }
+      // for (let i = results.landmarks.length; i < 2; i++) {
+      //   prevPoints[i] = null;
+      //   smoothedPoints[i] = null;
+      //   strokes[i] = [];
+      //   lastDirections[i] = null;
+      // }
     }
 
     prevTime = now;
