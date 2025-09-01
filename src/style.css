@@ -58,9 +58,22 @@ body.fullcoveringbackground {
 }
 
 .info_images {
-  max-width: 30%;
+  max-width: 60%;
+  min-width: 40%; 
   display: block; /* Make it a block-level element */
   margin: 0 auto; /* Set left and right margins to auto */
+}
+
+@media (orientation: portrait) {
+  .info_images {
+    max-width: 80%;
+    min-width: 60%; 
+  }
+}
+
+.texto_secundario {
+margin-top: 4em
+
 }
 
 #demos {
