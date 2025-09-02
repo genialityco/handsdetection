@@ -45,6 +45,20 @@ body.fullcoveringbackground {
 
 #videofondo {
   position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  object-fit: contain;   /* 🔑 aquí cambias cover → contain */
+  object-position: center;
+
+  z-index: -1; /* para que quede detrás del contenido */
+  background: black; /* color de relleno donde queden espacios */
+}
+
+/* #videofondo {
+  position: fixed;
   top: 50%;
   left: 50%;
   min-width: 100%;
@@ -55,7 +69,7 @@ body.fullcoveringbackground {
   transform: translateX(-50%) translateY(-50%);
   object-fit: cover;
   background-size: cover;
-}
+} */
 
 .info_images {
   max-width: 60%;
