@@ -83,31 +83,6 @@ controls.enablePan = false;
   controls.target.set(0, 35, 0);
   //controls.maxPolarAngle = Math.PI * 0.5;
 
-  // Add a cube at the origin
-  const cube = new THREE.Mesh(
-    new THREE.BoxGeometry(2, 2, 2), // size 2x2x2
-    new THREE.MeshStandardMaterial({ 
-      color: "green",
-      emissive: "green",
-      emissiveIntensity: 0.2
-    })
-  );
-  cube.position.set(0, 0, 0);
-  cube.castShadow = cube.receiveShadow = true;
-  scene.add(cube);
-
-  // Add a bright emissive cube to test bloom
-  const brightCube = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshBasicMaterial({ 
-      color: 0xffffff,
-      emissive: 0xffffff,
-      emissiveIntensity: 5.0
-    })
-  );
-  brightCube.position.set(3, 1, 0);
-  scene.add(brightCube);
-
   // Add a directional light with shadows enabled.
   const dlight = (this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.5));
   scene.add(dlight);
