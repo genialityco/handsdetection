@@ -48,7 +48,7 @@ body.fullcoveringbackground {
   width: 100vw;
   height: 100vh;
 
-  object-fit: contain;   /* 🔑 aquí cambias cover → contain */
+  object-fit: cover;   /* 🔑 aquí cambias cover → contain */
   object-position: center;
 
   z-index: -1; /* para que quede detrás del contenido */
