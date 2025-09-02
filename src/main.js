@@ -10,7 +10,18 @@ import { createStadiumFlashes } from "./stadium-flashes.js";
 import Renderer from "./utils/renderer.js";
 import startApp from "./utils/app.js";
 let renderer3 = new Renderer();
-let { scene, camera, renderer, controls, gltfLoader, flow, raycasting, ground, buttons, vec3 } = renderer3;
+let {
+  scene,
+  camera,
+  renderer,
+  controls,
+  gltfLoader,
+  flow,
+  raycasting,
+  ground,
+  buttons,
+  vec3,
+} = renderer3;
 window.app = await startApp({
   renderer3,
 });
@@ -35,7 +46,10 @@ const fireworkSystem = new FireworkSystem({
 import "./style.css";
 import "./components/soccerloader/soccerloader.css";
 
-import { HandLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
+import {
+  HandLandmarker,
+  FilesetResolver,
+} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
 
 const demosSection = document.getElementById("demos");
 const loaderContainer = document.getElementById("loader-container");
@@ -49,6 +63,49 @@ let draw;
 let stadiumFlashes;
 let userInteracted = false;
 let audioReady = false;
+
+// Índice del tip del dedo índice en MediaPipe
+const INDEX_TIP = 8;
+
+// Dibuja un punto brillante + anillo pulsante en la punta del índice
+function drawIndexPointer(ctx, lm, canvasW, canvasH) {
+  if (!lm || !lm[INDEX_TIP]) return;
+
+  const tip = lm[INDEX_TIP];
+  const x = tip.x * canvasW;
+  const y = tip.y * canvasH;
+
+  const now = performance.now();
+  const phase = (now % 1000) / 1000; // 0 → 1 cada ~1s
+  const ringR = 14 + 18 * phase; // radio del anillo
+  const ringAlpha = 1 - phase; // se desvanece
+
+  ctx.save();
+
+  // Punto central brillante (glow)
+  ctx.shadowColor = "rgba(0, 195, 255, 0.9)";
+  ctx.shadowBlur = 22;
+  ctx.fillStyle = "#00e0ff";
+  ctx.beginPath();
+  ctx.arc(x, y, 10, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Borde del punto
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "#6a00ff";
+  ctx.beginPath();
+  ctx.arc(x, y, 10, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Anillo pulsante
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = `rgba(106, 0, 255, ${ringAlpha.toFixed(3)})`;
+  ctx.beginPath();
+  ctx.arc(x, y, ringR, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.restore();
+}
 
 // Cargar el modelo de manos (async)
 const createHandLandmarker = async () => {
@@ -79,7 +136,8 @@ const createHandLandmarker = async () => {
     enableCam();
   } catch (error) {
     console.error("Failed to load model:", error);
-    loaderContainer.querySelector(".loading-text").textContent = "Failed to load model. Please refresh the page.";
+    loaderContainer.querySelector(".loading-text").textContent =
+      "Failed to load model. Please refresh the page.";
   }
 };
 createHandLandmarker();
@@ -116,7 +174,7 @@ async function enableCam(event) {
 
   if (webcamRunning === true) {
     webcamRunning = false;
-    enableWebcamButton.innerText = "ENABLE PREDICTIONS";
+    // enableWebcamButton.innerText = "ENABLE PREDICTIONS";
     // Detener el stream de video si se desactiva
     if (video.srcObject) {
       video.srcObject.getTracks().forEach((track) => track.stop());
@@ -124,7 +182,7 @@ async function enableCam(event) {
     }
   } else {
     webcamRunning = true;
-    enableWebcamButton.innerText = "DISABLE PREDICTIONS";
+    // enableWebcamButton.innerText = "DISABLE PREDICTIONS";
 
     // Configurar la cámara RealSense D435 RGB
     try {
@@ -133,15 +191,20 @@ async function enableCam(event) {
 
       // Enumerar dispositivos para encontrar la RealSense RGB
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter((device) => device.kind === "videoinput");
+      const videoDevices = devices.filter(
+        (device) => device.kind === "videoinput"
+      );
       const realsenseDevice = videoDevices.find(
-        (device) => device.label.includes("RealSense") && device.label.includes("RGB")
+        (device) =>
+          device.label.includes("RealSense") && device.label.includes("RGB")
       );
 
       // Definir constraints para la cámara
       const constraints = {
         video: {
-          deviceId: realsenseDevice ? { exact: realsenseDevice.deviceId } : undefined,
+          deviceId: realsenseDevice
+            ? { exact: realsenseDevice.deviceId }
+            : undefined,
           width: { ideal: 1280 }, // Resolución óptima para D435 RGB
           height: { ideal: 720 },
           frameRate: { ideal: 30 },
@@ -157,9 +220,11 @@ async function enableCam(event) {
       await handLandmarker.setOptions({ runningMode: "VIDEO" });
     } catch (err) {
       console.error("Error al configurar la cámara RealSense:", err);
-      alert("No se pudo acceder a la cámara RealSense. Verifica la conexión o permisos.");
+      alert(
+        "No se pudo acceder a la cámara RealSense. Verifica la conexión o permisos."
+      );
       webcamRunning = false;
-      enableWebcamButton.innerText = "ENABLE PREDICTIONS";
+      // enableWebcamButton.innerText = "ENABLE PREDICTIONS";
     }
   }
 }
@@ -199,7 +264,11 @@ async function initAndPredict() {
     scene2.add(amb);
 
     const dir = new THREE.DirectionalLight(0xffffff, 0.8);
-    dir.position.set(0.5 * canvasElement2.width, -1 * canvasElement2.height, 200);
+    dir.position.set(
+      0.5 * canvasElement2.width,
+      -1 * canvasElement2.height,
+      200
+    );
     scene2.add(dir);
 
     // === AUDIO: inicializar tras tener cámara y tras click del usuario ===
@@ -223,7 +292,13 @@ async function initAndPredict() {
     scene2.add(line);
     renderer2.render(scene2, camera2);
 
-    draw = initHandPainter(scene2, canvasElement2.width, canvasElement2.height, renderer2, camera2);
+    draw = initHandPainter(
+      scene2,
+      canvasElement2.width,
+      canvasElement2.height,
+      renderer2,
+      camera2
+    );
 
     // Create stadium flashes
     stadiumFlashes = createStadiumFlashes(scene2, width, height);
@@ -312,11 +387,12 @@ async function predictWebcam() {
       //   textureUrl: "assets/glove_texture.png", // optional
       // });
 
-      drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
-        color: "#AAAAAA",
-        lineWidth: 5,
-      });
-      drawLandmarks(canvasCtx, landmarks, { color: "#DDDDDD", lineWidth: 2 });
+      drawIndexPointer(
+        canvasCtx,
+        landmarks,
+        canvasElement.width,
+        canvasElement.height
+      );
     }
   }
 
@@ -341,7 +417,9 @@ async function predictWebcam() {
 
 function drawCustomConnectors(scene, landmarks, connections, style) {
   // Remove previous connectors from the scene
-  const existingConnectors = scene.children.filter((child) => child.userData.type === "connector");
+  const existingConnectors = scene.children.filter(
+    (child) => child.userData.type === "connector"
+  );
   existingConnectors.forEach((connector) => scene.remove(connector));
 
   // Optional: load a texture (only loaded once)
@@ -352,7 +430,11 @@ function drawCustomConnectors(scene, landmarks, connections, style) {
       style.textureUrl,
       () => console.log("Texture loaded!"),
       undefined,
-      (err) => console.error("Texture load error:", err.message + " " + style.textureUrl)
+      (err) =>
+        console.error(
+          "Texture load error:",
+          err.message + " " + style.textureUrl
+        )
     );
   }
   gloveTexture = drawCustomConnectors._texture;
@@ -361,12 +443,22 @@ function drawCustomConnectors(scene, landmarks, connections, style) {
     const start = landmarks[connection[0]];
     const end = landmarks[connection[1]];
 
-    const startVec = new THREE.Vector3(start.x * style.width, start.y * style.height, 0);
-    const endVec = new THREE.Vector3(end.x * style.width, end.y * style.height, 0);
+    const startVec = new THREE.Vector3(
+      start.x * style.width,
+      start.y * style.height,
+      0
+    );
+    const endVec = new THREE.Vector3(
+      end.x * style.width,
+      end.y * style.height,
+      0
+    );
 
     const direction = new THREE.Vector3().subVectors(endVec, startVec);
     const length = direction.length();
-    const midPoint = new THREE.Vector3().addVectors(startVec, endVec).multiplyScalar(0.5);
+    const midPoint = new THREE.Vector3()
+      .addVectors(startVec, endVec)
+      .multiplyScalar(0.5);
 
     // Cylinder in default orientation (y-axis)
     const cylinderGeom = new THREE.CylinderGeometry(
@@ -403,13 +495,19 @@ function drawCustomConnectors(scene, landmarks, connections, style) {
     console.log("Adding cylinder", cylinder.position, cylinder.material);
 
     const testGeom = new THREE.BoxGeometry(50, 50, 50);
-    const testMat = new THREE.MeshStandardMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
+    const testMat = new THREE.MeshStandardMaterial({
+      color: 0x00ff00,
+      side: THREE.DoubleSide,
+    });
     const testMesh = new THREE.Mesh(testGeom, testMat);
     testMesh.position.set(style.width / 2, style.height / 2, 0);
     scene2.add(testMesh);
     //Add edge outline for stylized effect
     const edges = new THREE.EdgesGeometry(cylinderGeom);
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x888888, linewidth: 2 });
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: 0x888888,
+      linewidth: 2,
+    });
     const line = new THREE.LineSegments(edges, lineMaterial);
     line.position.copy(midPoint);
     line.quaternion.copy(cylinder.quaternion);
@@ -420,7 +518,9 @@ function drawCustomConnectors(scene, landmarks, connections, style) {
 
 function drawCustomLandmarks(scene, landmarks, style) {
   // Remove previous landmarks from the scene
-  const existingLandmarks = scene.children.filter((child) => child.userData.type === "landmark");
+  const existingLandmarks = scene.children.filter(
+    (child) => child.userData.type === "landmark"
+  );
   existingLandmarks.forEach((landmark) => scene.remove(landmark));
 
   // Optional: load a texture (only loaded once)
@@ -433,14 +533,20 @@ function drawCustomLandmarks(scene, landmarks, style) {
 
   for (let i = 0; i < landmarks.length; i++) {
     const landmark = landmarks[i];
-    const pos = new THREE.Vector3(landmark.x * style.width, landmark.y * style.height, 0);
+    const pos = new THREE.Vector3(
+      landmark.x * style.width,
+      landmark.y * style.height,
+      0
+    );
 
     // Use IcosahedronGeometry for low-poly look
     const geometry = new THREE.IcosahedronGeometry(style.radius || 16, 0);
 
     // Gray tones: lighter for palm, darker for fingers
     const isPalm = i < 5;
-    const color = isPalm ? style.palmColor || 0xcccccc : style.fingerColor || 0xaaaaaa;
+    const color = isPalm
+      ? style.palmColor || 0xcccccc
+      : style.fingerColor || 0xaaaaaa;
 
     const material = new THREE.MeshStandardMaterial({
       color,
@@ -459,7 +565,10 @@ function drawCustomLandmarks(scene, landmarks, style) {
 
     // Add edge outline for stylized effect
     const edges = new THREE.EdgesGeometry(geometry);
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x888888, linewidth: 2 });
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: 0x888888,
+      linewidth: 2,
+    });
     const line = new THREE.LineSegments(edges, lineMaterial);
     line.position.copy(pos);
     line.userData.type = "landmark";
