@@ -393,12 +393,17 @@ async function predictWebcam() {
       //   textureUrl: "assets/glove_texture.png", // optional
       // });
 
-      drawIndexPointer(
-        canvasCtx,
-        landmarks,
-        canvasElement.width,
-        canvasElement.height
-      );
+      // drawIndexPointer(
+      //   canvasCtx,
+      //   landmarks,
+      //   canvasElement.width,
+      //   canvasElement.height
+      // );
+       drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+        color: "#AAAAAA",
+        lineWidth: 5,
+      });
+      drawLandmarks(canvasCtx, landmarks, { color: "#DDDDDD", lineWidth: 2 });
     }
   }
 
