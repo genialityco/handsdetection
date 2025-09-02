@@ -36,6 +36,19 @@
     INICIAR EXPERIENCIA
   </button>
 
+  <div id="status-indicator" style="
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: red;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  z-index: 9999;
+"></div>
+
+
   <video id="videofondo" autoplay muted loop playsinline src="/src/assets/FONDO_ESTADIO_LENOVO.mp4"></video>
   <script type="module" src="/src/main.js"></script>
 
@@ -64,10 +77,8 @@
   </section>
   <div style="position: relative">
     <video id="webcam" style="position: absolute; display: none" autoplay playsinline></video>
-    <canvas class="output_canvas" id="output_canvas"
-      style="position: fixed; left: 0px; top: 0px"></canvas>
-    <canvas class="output_canvas" id="test_canvas"
-      style="position: fixed; left: 0px; top: 0px"></canvas>
+    <canvas class="output_canvas" id="output_canvas" style="position: fixed; left: 0px; top: 0px"></canvas>
+    <canvas class="output_canvas" id="test_canvas" style="position: fixed; left: 0px; top: 0px"></canvas>
   </div>
 
   <!-- <button id="webcamButton" class="mdc-button mdc-button--raised">

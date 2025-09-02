@@ -67,6 +67,9 @@ let audioReady = false;
 // Índice del tip del dedo índice en MediaPipe
 const INDEX_TIP = 8;
 
+const statusIndicator = document.getElementById("status-indicator");
+
+
 // Dibuja un punto brillante + anillo pulsante en la punta del índice
 function drawIndexPointer(ctx, lm, canvasW, canvasH) {
   if (!lm || !lm[INDEX_TIP]) return;
@@ -128,6 +131,7 @@ const createHandLandmarker = async () => {
     //** HANDS detection model LOADED, EXPERIENCE CAN START  ****/
     // Hide loader after model is loaded
     loaderContainer.style.display = "none";
+    statusIndicator.style.background = "orange";
     demosSection.classList.remove("invisible");
     enableWebcamButton = document.getElementById("webcamButton");
     //enableWebcamButton.addEventListener("click", enableCam);
@@ -283,6 +287,8 @@ async function initAndPredict() {
       } catch {}
       audioReady = true;
     }
+
+    statusIndicator.style.background = "limegreen";
 
     // Línea visible (debug)
     const points = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(100, 100, 0)];
